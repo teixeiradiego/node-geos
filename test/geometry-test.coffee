@@ -176,7 +176,7 @@ tests = (vows.describe "Geometry").addBatch
     "should return a valid boundary for a linestring": ->
       geom = (new WKTReader()).read "LINESTRING (0 0, 1 1)"
       #TODO remove this ugly wkt
-      assert.equal geom.getEnvelope().toString(), "POLYGON ((0.0000000000000000 0.0000000000000000, 1.0000000000000000 0.0000000000000000, 1.0000000000000000 1.0000000000000000, 0.0000000000000000 1.0000000000000000, 0.0000000000000000 0.0000000000000000))"
+      assert.equal geom.getBoundary().toString(), "MULTIPOINT (0.0000000000000000 0.0000000000000000, 1.0000000000000000 1.0000000000000000)"
 
     "should have a getCentroid function": (geom) ->
       assert.isFunction geom.getCentroid
