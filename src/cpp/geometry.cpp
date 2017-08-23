@@ -53,6 +53,7 @@ void Geometry::Initialize(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(tpl, "convexHull", Geometry::ConvexHull);
 
     NODE_SET_PROTOTYPE_METHOD(tpl, "buffer", Geometry::Buffer);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "getEnvelopeInternal", Geometry::GetEnvelopeInternal);
 
     NODE_SET_PROTOTYPE_METHOD(tpl, "distance", Geometry::Distance);
 
@@ -176,6 +177,17 @@ void Geometry::Buffer(const FunctionCallbackInfo<Value>& args) {
         int endCapStyle = args[2]->IntegerValue();
         result = Geometry::New(geom->_geom->buffer(distance, quadrantSegments, endCapStyle));
     }
+
+    args.GetReturnValue().Set(result);
+}
+
+void Geometry::GetEnvelopeInternal(const FunctionCallbackInfo<Value>& args) {
+    Isolate* isolate = Isolate::GetCurrent();
+    HandleScope scope(isolate);
+
+    Geometry* geom = ObjectWrap::Unwrap<Geometry>(args.This());
+
+    Handle<Value> result = Envelope::New(geom->_geom->getEnvelopeInternal());
 
     args.GetReturnValue().Set(result);
 }

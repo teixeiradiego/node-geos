@@ -169,6 +169,15 @@ tests = (vows.describe "Geometry").addBatch
       #TODO remove this ugly wkt
       assert.equal geom.getEnvelope().toString(), "POLYGON ((0.0000000000000000 0.0000000000000000, 1.0000000000000000 0.0000000000000000, 1.0000000000000000 1.0000000000000000, 0.0000000000000000 1.0000000000000000, 0.0000000000000000 0.0000000000000000))"
 
+    "should have a getEnvelopeInternal function": (geom) ->
+      assert.isFunction geom.getEnvelopeInternal
+      assert.equal geom.getEnvelopeInternal().toString(), "Env[1:1,1:1]"
+
+    "should return a valid envelope internal for a linestring": ->
+      geom = (new WKTReader()).read "LINESTRING (0 0, 1 1)"
+      #TODO remove this ugly wkt
+      assert.equal geom.getEnvelopeInternal().toString(), "Env[0:1,0:1]"
+
     "should have a getBoundary function": (geom) ->
       assert.isFunction geom.getBoundary
       assert.equal geom.getBoundary().toString(), "GEOMETRYCOLLECTION EMPTY"
