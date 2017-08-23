@@ -215,6 +215,7 @@ class Geometry : public ObjectWrap {
 
     static void GetBoundary(const FunctionCallbackInfo<Value>& args);
     static void GetEnvelope(const FunctionCallbackInfo<Value>& args);
+    static void GetCentroid(const FunctionCallbackInfo<Value>& args);
     static void ConvexHull(const FunctionCallbackInfo<Value>& args);
 
     static void Buffer(const FunctionCallbackInfo<Value>& args);

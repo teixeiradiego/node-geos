@@ -48,6 +48,7 @@ void Geometry::Initialize(Handle<Object> target) {
 
     //GEOS unary topologic functions
     NODE_SET_PROTOTYPE_METHOD(tpl, "getEnvelope", Geometry::GetEnvelope);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "getCentroid", Geometry::GetCentroid);
     NODE_SET_PROTOTYPE_METHOD(tpl, "getBoundary", Geometry::GetBoundary);
     NODE_SET_PROTOTYPE_METHOD(tpl, "convexHull", Geometry::ConvexHull);
 
@@ -199,6 +200,7 @@ NODE_GEOS_BINARY_PREDICATE(CoveredBy, coveredBy);
 
 // GEOS unary topologic functions
 NODE_GEOS_UNARY_TOPOLOGIC_FUNCTION(GetEnvelope, getEnvelope);
+NODE_GEOS_UNARY_TOPOLOGIC_FUNCTION(GetCentroid, getCentroid);
 NODE_GEOS_UNARY_TOPOLOGIC_FUNCTION(GetBoundary, getBoundary);
 NODE_GEOS_UNARY_TOPOLOGIC_FUNCTION(ConvexHull, convexHull);
 

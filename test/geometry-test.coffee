@@ -178,6 +178,15 @@ tests = (vows.describe "Geometry").addBatch
       #TODO remove this ugly wkt
       assert.equal geom.getEnvelope().toString(), "POLYGON ((0.0000000000000000 0.0000000000000000, 1.0000000000000000 0.0000000000000000, 1.0000000000000000 1.0000000000000000, 0.0000000000000000 1.0000000000000000, 0.0000000000000000 0.0000000000000000))"
 
+    "should have a getCentroid function": (geom) ->
+      assert.isFunction geom.getCentroid
+      assert.equal geom.getCentroid().toString(), "POINT (1.0000000000000000 1.0000000000000000)"
+
+    "should return a valid centroid for a linestring": ->
+      geom = (new WKTReader()).read "LINESTRING (0 0, 1 1)"
+      #TODO remove this ugly wkt
+      assert.equal geom.getCentroid().toString(), "POINT (0.5000000000000000 0.5000000000000000)"
+
     "should have a buffer function": (geom) ->
       assert.isFunction geom.buffer
 
