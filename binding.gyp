@@ -19,7 +19,18 @@
       'cflags_cc!': [ '-fno-exceptions', '-fno-rtti' ],
       'conditions': [
         ['OS=="win"', {
-          # no Windows support yet...
+          'libraries': [
+            'geos.lib'
+          ],
+          'configurations': {
+            'Release': {
+              'msvs_settings': {
+                'VCCLCompilerTool': {
+                  'RuntimeLibrary': 2
+                }
+              }
+            }
+          }
         }, {
           'libraries': [
             '<!@(geos-config --libs)'
@@ -34,10 +45,11 @@
               '<!@(geos-config --cflags)'
             ]
           }
-        }, {
+        }],
+        ['OS=="linux"', {
           'cflags': [
             '<!@(geos-config --cflags)'
-          ],
+          ]
         }]
       ]
     }

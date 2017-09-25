@@ -5,6 +5,11 @@ coffeeBin = "coffee"
 vows = "vows"
 nodeGyp = "node-gyp"
 
+if process.platform is "win32"
+  coffeeBin = "coffee.cmd"
+  vows = "vows.cmd"
+  nodeGyp = "node-gyp.cmd"
+
 spawn = (command, options) ->
   program = _spawn command, options
   program.stdout.on "data", (data) -> print data.toString()
