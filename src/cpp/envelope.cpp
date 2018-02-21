@@ -63,11 +63,11 @@ void Envelope::New(const FunctionCallbackInfo<Value>& args) {
         Envelope* env = ObjectWrap::Unwrap<Envelope>(args[0]->ToObject());
         envelope = new Envelope(env->_envelope);
     } else {
-        double maxY = args[0]->NumberValue();
+        double minX = args[0]->NumberValue();
         double maxX = args[1]->NumberValue();
         double minY = args[2]->NumberValue();
-        double minX = args[3]->NumberValue();
-        envelope = new Envelope(maxY, maxX, minY, minX);
+        double maxY = args[3]->NumberValue();
+        envelope = new Envelope(minX, maxX, minY, maxY);
     }
 
     envelope->Wrap(args.This());
