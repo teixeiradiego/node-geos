@@ -38,7 +38,7 @@ void WKBReader::New(const FunctionCallbackInfo<Value>& args)
 
     if(args.Length() == 1) {
         GeometryFactory *factory = ObjectWrap::Unwrap<GeometryFactory>(args[0]->ToObject());
-        wkbReader = new WKBReader(factory->_factory);
+        wkbReader = new WKBReader(factory->_factory.get());
     } else {
         wkbReader = new WKBReader();
     }

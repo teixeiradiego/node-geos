@@ -10,7 +10,7 @@
 class GeometryFactory : public ObjectWrap {
 
     public:
-        geos::geom::GeometryFactory* _factory;
+        geos::geom::GeometryFactory::unique_ptr _factory;
 
         GeometryFactory();
         GeometryFactory(const geos::geom::PrecisionModel *pm);

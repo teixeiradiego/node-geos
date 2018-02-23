@@ -1,15 +1,15 @@
 #include "geometryfactory.hpp"
 
 GeometryFactory::GeometryFactory() {
-    _factory = new geos::geom::GeometryFactory();
+    _factory = geos::geom::GeometryFactory::create();
 }
 
 GeometryFactory::GeometryFactory(const geos::geom::PrecisionModel *pm) {
-    _factory = new geos::geom::GeometryFactory(pm);
+    _factory = geos::geom::GeometryFactory::create(pm);
 }
 
 GeometryFactory::GeometryFactory(const geos::geom::PrecisionModel *pm, int newSRID) {
-    _factory = new geos::geom::GeometryFactory(pm, newSRID);
+    _factory = geos::geom::GeometryFactory::create(pm, newSRID);
 }
 
 GeometryFactory::~GeometryFactory() {}

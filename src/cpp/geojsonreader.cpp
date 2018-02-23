@@ -42,7 +42,7 @@ void GeoJSONReader::New(const FunctionCallbackInfo<Value>& args) {
 
     if(args.Length() == 1) {
         GeometryFactory *factory = ObjectWrap::Unwrap<GeometryFactory>(args[0]->ToObject());
-        reader = new GeoJSONReader(factory->_factory);
+        reader = new GeoJSONReader(factory->_factory.get());
     } else {
         reader = new GeoJSONReader();
     }
