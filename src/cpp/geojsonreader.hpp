@@ -17,6 +17,7 @@ For the The GeoJSON Format Specification see http://geojson.org/geojson-spec.htm
 
 #include <vector>
 #include <string.h>
+#include <nan.h>
 #include <geos/geom/LinearRing.h>
 #include <geos/geom/GeometryFactory.h>
 #include <geos/geom/CoordinateSequence.h>

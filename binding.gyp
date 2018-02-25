@@ -15,6 +15,9 @@
         "src/cpp/geojsonwriter.cpp",
         "src/cpp/geojsonreader.cpp"
       ],
+      "include_dirs" : [
+        "<!(node -e \"require('nan')\")"
+      ],
       'cflags!': [ '-fno-exceptions', '-fno-rtti' ],
       'cflags_cc!': [ '-fno-exceptions', '-fno-rtti' ],
       'conditions': [

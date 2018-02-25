@@ -1,6 +1,7 @@
 #ifndef PRECISION_MODEL_HPP
 #define PRECISION_MODEL_HPP
 
+#include <nan.h>
 #include <geos/geom/PrecisionModel.h>
 #include "binding.hpp"
 

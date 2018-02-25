@@ -70,15 +70,29 @@ void PrecisionModel::New(const FunctionCallbackInfo<Value>& args) {
 }
 
 Handle<Value> PrecisionModel::New(const geos::geom::PrecisionModel *m) {
+    
     Isolate* isolate = Isolate::GetCurrent();
     HandleScope scope(isolate);
 
     PrecisionModel *model = new PrecisionModel(m);
     Handle<Value> ext = External::New(isolate, model);
+    
     Local<Function> cons = Local<Function>::New(isolate, constructor);
-    Handle<Object> obj = cons->NewInstance(1, &ext);
-    model->Wrap(obj);
-    return obj;
+    MaybeLocal<v8::Object> maybeInstance = Nan::NewInstance(cons, 1, &ext);
+    Local<v8::Object> instance;
+
+    if (maybeInstance.IsEmpty()) {
+        Nan::ThrowError("Could not create new PrecisionModel instance");
+    } else {
+
+        instance = maybeInstance.ToLocalChecked();
+    
+        model->Wrap(instance);
+
+        return instance;
+
+    }
+
 }
 
 void PrecisionModel::GetType(const FunctionCallbackInfo<Value>& args) {

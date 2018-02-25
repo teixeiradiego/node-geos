@@ -3,7 +3,7 @@
 Geometry::Geometry() {}
 
 Geometry::Geometry(geos::geom::Geometry *geom) : ObjectWrap() {
-    _geom = geom;
+    _instance = geom;
 }
 
 Geometry::~Geometry() {}
@@ -72,6 +72,7 @@ void Geometry::Initialize(Handle<Object> target) {
 }
 
 Handle<Value> Geometry::New(geos::geom::Geometry *geometry) {
+
     Isolate* isolate = Isolate::GetCurrent();
     HandleScope scope(isolate);
 
@@ -79,9 +80,21 @@ Handle<Value> Geometry::New(geos::geom::Geometry *geometry) {
     Handle<Value> ext = External::New(isolate, geom);
 
     Local<Function> cons = Local<Function>::New(isolate, constructor);
-    Handle<Object> obj = cons->NewInstance(1, &ext);
-    geom->Wrap(obj);
-    return obj;
+    MaybeLocal<v8::Object> maybeInstance = Nan::NewInstance(cons, 1, &ext);
+    Local<v8::Object> instance;
+
+    if (maybeInstance.IsEmpty()) {
+        Nan::ThrowError("Could not create new Geometry instance");
+    } else {
+
+        instance = maybeInstance.ToLocalChecked();
+
+        geom->Wrap(instance);
+
+        return instance;
+
+    }
+
 }
 
 void Geometry::New(const FunctionCallbackInfo<Value>& args) {
@@ -99,7 +112,7 @@ void Geometry::ToString(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(isolate);
 
     Geometry* geom = ObjectWrap::Unwrap<Geometry>(args.This());
-    args.GetReturnValue().Set(String::NewFromUtf8(isolate, geom->_geom->toString().data()));
+    args.GetReturnValue().Set(String::NewFromUtf8(isolate, geom->_instance->toString().data()));
 }
 
 void Geometry::GetGeometryType(const FunctionCallbackInfo<Value>& args) {
@@ -107,7 +120,7 @@ void Geometry::GetGeometryType(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(isolate);
 
     Geometry* geom = ObjectWrap::Unwrap<Geometry>(args.This());
-    args.GetReturnValue().Set(String::NewFromUtf8(isolate, geom->_geom->getGeometryType().data()));
+    args.GetReturnValue().Set(String::NewFromUtf8(isolate, geom->_instance->getGeometryType().data()));
 }
 
 void Geometry::Distance(const FunctionCallbackInfo<Value>& args) {
@@ -116,7 +129,7 @@ void Geometry::Distance(const FunctionCallbackInfo<Value>& args) {
 
     Geometry* geom = ObjectWrap::Unwrap<Geometry>(args.This());
     Geometry* geom2 = ObjectWrap::Unwrap<Geometry>(args[0]->ToObject());
-    args.GetReturnValue().Set(Number::New(isolate, geom->_geom->distance(geom2->_geom)));
+    args.GetReturnValue().Set(Number::New(isolate, geom->_instance->distance(geom2->_instance)));
 }
 
 void Geometry::IsWithinDistance(const FunctionCallbackInfo<Value>& args) {
@@ -127,7 +140,7 @@ void Geometry::IsWithinDistance(const FunctionCallbackInfo<Value>& args) {
     Geometry* geom2 = ObjectWrap::Unwrap<Geometry>(args[0]->ToObject());
     double distance = args[0]->NumberValue();
     args.GetReturnValue().Set(
-      geom->_geom->isWithinDistance(geom2->_geom, distance) ? True(isolate) : False(isolate)
+      geom->_instance->isWithinDistance(geom2->_instance, distance) ? True(isolate) : False(isolate)
     );
 }
 
@@ -136,7 +149,7 @@ void Geometry::SetSRID(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(isolate);
 
     Geometry* geom = ObjectWrap::Unwrap<Geometry>(args.This());
-    geom->_geom->setSRID(args[0]->IntegerValue());
+    geom->_instance->setSRID(args[0]->IntegerValue());
     args.GetReturnValue().Set(Undefined(isolate));
 }
 
@@ -152,7 +165,7 @@ void Geometry::ToJSON(const FunctionCallbackInfo<Value>& args) {
     if (args.Length() >= 2 && args[1]->IsBoolean()) {
         writer.setBbox(args[1]->BooleanValue());
     }
-    Handle<Value> json = writer.write(geom->_geom);
+    Handle<Value> json = writer.write(geom->_instance);
     args.GetReturnValue().Set(json);
 }
 
@@ -168,14 +181,14 @@ void Geometry::Buffer(const FunctionCallbackInfo<Value>& args) {
     distance = args[0]->NumberValue();
 
     if (args.Length() == 1) {
-        result = Geometry::New(geom->_geom->buffer(distance));
+        result = Geometry::New(geom->_instance->buffer(distance));
     } else if (args.Length() == 2) {
         quadrantSegments = args[1]->IntegerValue();
-        result = Geometry::New(geom->_geom->buffer(distance, quadrantSegments));
+        result = Geometry::New(geom->_instance->buffer(distance, quadrantSegments));
     } else {
         quadrantSegments = args[1]->IntegerValue();
         int endCapStyle = args[2]->IntegerValue();
-        result = Geometry::New(geom->_geom->buffer(distance, quadrantSegments, endCapStyle));
+        result = Geometry::New(geom->_instance->buffer(distance, quadrantSegments, endCapStyle));
     }
 
     args.GetReturnValue().Set(result);
@@ -187,41 +200,41 @@ void Geometry::GetEnvelopeInternal(const FunctionCallbackInfo<Value>& args) {
 
     Geometry* geom = ObjectWrap::Unwrap<Geometry>(args.This());
 
-    Handle<Value> result = Envelope::New(geom->_geom->getEnvelopeInternal());
+    Handle<Value> result = Envelope::New(geom->_instance->getEnvelopeInternal());
 
     args.GetReturnValue().Set(result);
 }
 
 //GEOS unary predicates
-NODE_GEOS_UNARY_PREDICATE(IsSimple, isSimple);
-NODE_GEOS_UNARY_PREDICATE(IsValid, isValid);
-NODE_GEOS_UNARY_PREDICATE(IsEmpty, isEmpty);
-NODE_GEOS_UNARY_PREDICATE(IsRectangle, isRectangle);
+NODE_GEOS_UNARY_PREDICATE(Geometry, IsSimple, isSimple);
+NODE_GEOS_UNARY_PREDICATE(Geometry, IsValid, isValid);
+NODE_GEOS_UNARY_PREDICATE(Geometry, IsEmpty, isEmpty);
+NODE_GEOS_UNARY_PREDICATE(Geometry, IsRectangle, isRectangle);
 
 // GEOS binary predicates
-NODE_GEOS_BINARY_PREDICATE(Disjoint, disjoint);
-NODE_GEOS_BINARY_PREDICATE(Touches, touches);
-NODE_GEOS_BINARY_PREDICATE(Intersects, intersects);
-NODE_GEOS_BINARY_PREDICATE(Crosses, crosses);
-NODE_GEOS_BINARY_PREDICATE(Within, within);
-NODE_GEOS_BINARY_PREDICATE(Contains, contains);
-NODE_GEOS_BINARY_PREDICATE(Overlaps, overlaps);
-NODE_GEOS_BINARY_PREDICATE(Equals, equals);
-NODE_GEOS_BINARY_PREDICATE(Covers, covers);
-NODE_GEOS_BINARY_PREDICATE(CoveredBy, coveredBy);
+NODE_GEOS_BINARY_PREDICATE(Geometry, Disjoint, disjoint);
+NODE_GEOS_BINARY_PREDICATE(Geometry, Touches, touches);
+NODE_GEOS_BINARY_PREDICATE(Geometry, Intersects, intersects);
+NODE_GEOS_BINARY_PREDICATE(Geometry, Crosses, crosses);
+NODE_GEOS_BINARY_PREDICATE(Geometry, Within, within);
+NODE_GEOS_BINARY_PREDICATE(Geometry, Contains, contains);
+NODE_GEOS_BINARY_PREDICATE(Geometry, Overlaps, overlaps);
+NODE_GEOS_BINARY_PREDICATE(Geometry, Equals, equals);
+NODE_GEOS_BINARY_PREDICATE(Geometry, Covers, covers);
+NODE_GEOS_BINARY_PREDICATE(Geometry, CoveredBy, coveredBy);
 
 // GEOS unary topologic functions
-NODE_GEOS_UNARY_TOPOLOGIC_FUNCTION(GetEnvelope, getEnvelope);
-NODE_GEOS_UNARY_TOPOLOGIC_FUNCTION(GetCentroid, getCentroid);
-NODE_GEOS_UNARY_TOPOLOGIC_FUNCTION(GetBoundary, getBoundary);
-NODE_GEOS_UNARY_TOPOLOGIC_FUNCTION(ConvexHull, convexHull);
+NODE_GEOS_UNARY_TOPOLOGIC_FUNCTION(Geometry, GetEnvelope, getEnvelope);
+NODE_GEOS_UNARY_TOPOLOGIC_FUNCTION(Geometry, GetCentroid, getCentroid);
+NODE_GEOS_UNARY_TOPOLOGIC_FUNCTION(Geometry, GetBoundary, getBoundary);
+NODE_GEOS_UNARY_TOPOLOGIC_FUNCTION(Geometry, ConvexHull, convexHull);
 
 // GEOS binary topologic functions
-NODE_GEOS_BINARY_TOPOLOGIC_FUNCTION(Intersection, intersection);
-NODE_GEOS_BINARY_TOPOLOGIC_FUNCTION(Union, Union);
-NODE_GEOS_BINARY_TOPOLOGIC_FUNCTION(Difference, difference);
-NODE_GEOS_BINARY_TOPOLOGIC_FUNCTION(SymDifference, symDifference);
+NODE_GEOS_BINARY_TOPOLOGIC_FUNCTION(Geometry, Intersection, intersection);
+NODE_GEOS_BINARY_TOPOLOGIC_FUNCTION(Geometry, Union, Union);
+NODE_GEOS_BINARY_TOPOLOGIC_FUNCTION(Geometry, Difference, difference);
+NODE_GEOS_BINARY_TOPOLOGIC_FUNCTION(Geometry, SymDifference, symDifference);
 
-NODE_GEOS_DOUBLE_GETTER(GetArea, getArea);
-NODE_GEOS_DOUBLE_GETTER(GetLength, getLength);
-NODE_GEOS_DOUBLE_GETTER(GetSRID, getSRID);
+NODE_GEOS_DOUBLE_GETTER(Geometry, GetArea, getArea);
+NODE_GEOS_DOUBLE_GETTER(Geometry, GetLength, getLength);
+NODE_GEOS_DOUBLE_GETTER(Geometry, GetSRID, getSRID);

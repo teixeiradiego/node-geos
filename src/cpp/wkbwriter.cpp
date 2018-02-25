@@ -40,6 +40,6 @@ void WKBWriter::WriteHEX(const FunctionCallbackInfo<Value>& args) {
     Geometry *geom = ObjectWrap::Unwrap<Geometry>(args[0]->ToObject());
     //TODO catch exception?
     std::stringstream ss;
-    writer->_writer->writeHEX(*geom->_geom, ss);
+    writer->_writer->writeHEX(*geom->_instance, ss);
     args.GetReturnValue().Set(String::NewFromUtf8(isolate, ss.str().c_str()));
 }
