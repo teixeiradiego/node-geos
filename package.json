@@ -43,7 +43,7 @@
     "url": "https://github.com/teixeiradiego/node-geos/issues"
   },
   "scripts": {
-    "install": "cake install",
+    "install": "prebuild-install || cake install",
     "test": "vows --spec"
   },
   "gypfile": true,
@@ -51,7 +51,8 @@
   "dependencies": {
     "coffee-script": "*",
     "nan": "^2.9.2",
-    "node-gyp": ">=0.12.1"
+    "node-gyp": ">=0.12.1",
+    "prebuild-install": "^4.0.0"
   },
   "devDependencies": {
     "vows": ">=0.7.0"
