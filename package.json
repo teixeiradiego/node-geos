@@ -27,26 +27,31 @@
       "name": "Andreas Kalsch",
       "web": "http://akidee.de",
       "email": "mail@akidee.de"
+    },
+    {
+      "name": "Diego Nogueira Teixeira",
+      "email": "frangocomp@gmail.com"
     }
   ],
   "version": "0.0.4",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kashif/node-geos.git"
+    "url": "https://github.com/teixeiradiego/node-geos.git"
   },
   "bugs": {
-    "url": "http://github.com/kashif/node-geos/issues"
+    "url": "https://github.com/teixeiradiego/node-geos/issues"
   },
   "scripts": {
-    "install": "cake install",
+    "install": "prebuild-install || cake install",
     "test": "vows --spec"
   },
   "gypfile": true,
   "main": "./lib",
   "dependencies": {
     "coffee-script": "*",
-    "node-gyp": ">=0.12.1"
+    "node-gyp": ">=0.12.1",
+    "prebuild-install": "^4.0.0"
   },
   "devDependencies": {
     "vows": ">=0.7.0"
