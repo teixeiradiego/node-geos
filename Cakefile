@@ -4,16 +4,21 @@ _spawn = (require "child_process").spawn
 coffeeBin = "coffee"
 vows = "vows"
 nodeGyp = "node-gyp"
+prebuildInstall = "prebuild-install"
 
 if process.platform is "win32"
   coffeeBin = "coffee.cmd"
   vows = "vows.cmd"
   nodeGyp = "node-gyp.cmd"
+  prebuildInstall = "prebuild-install.cmd"
 
-spawn = (command, options) ->
+spawn = (command, options, exit_cb) ->
   program = _spawn command, options
   program.stdout.on "data", (data) -> print data.toString()
   program.stderr.on "data", (data) -> print data.toString()
+  program.on "exit", (code)->
+    if code != 0
+      exit_cb?()
   program #return program
 
 buildBinary = ->
@@ -33,7 +38,7 @@ task "build", "Compile CoffeeScript source files", ->
   build "examples", "examples"
 
 task "install", "Compile CoffeeScript and C++ Code", ->
-  buildBinary()
+  spawn prebuildInstall, ["--debug", "--verbose"], buildBinary
   build "src", "lib"
   build "examples", "examples"
 
