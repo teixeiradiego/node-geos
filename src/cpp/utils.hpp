@@ -136,28 +136,52 @@
         }                                                                               \
     }
 
-#define NODE_GEOS_UNARY_TOPOLOGIC_FUNCTION(cppclass, cppmethod, geosmethod)               \
-    void cppclass::cppmethod(const FunctionCallbackInfo<Value>& args) {         \
-        cppclass *geom = ObjectWrap::Unwrap<cppclass>(args.This());             \
-        geos::geom::cppclass* result = geom->_instance->geosmethod();               \
-        args.GetReturnValue().Set(cppclass::New(result));                       \
-    }                                                                           
+#define NODE_GEOS_UNARY_TOPOLOGIC_FUNCTION(cppclass, cppmethod, geosmethod)             \
+    void cppclass::cppmethod(const FunctionCallbackInfo<Value>& args) {                 \
+        Isolate* isolate = Isolate::GetCurrent();                                       \
+        HandleScope scope(isolate);                                                     \
+        cppclass *geom = ObjectWrap::Unwrap<cppclass>(args.This());                     \
+        try {                                                                           \
+            geos::geom::cppclass* result = geom->_instance->geosmethod();               \
+            args.GetReturnValue().Set(cppclass::New(result));                           \
+        } catch(geos::util::GEOSException exception) {                                  \
+            isolate->ThrowException(                                                    \
+                Exception::Error(String::NewFromUtf8(isolate, exception.what()))        \
+            );                                                                          \
+        }                                                                               \
+    }
 
-#define NODE_GEOS_BINARY_TOPOLOGIC_FUNCTION(cppclass, cppmethod, geosmethod)              \
-    void cppclass::cppmethod(const FunctionCallbackInfo<Value>& args) {         \
-        cppclass *geom = ObjectWrap::Unwrap<cppclass>(args.This());             \
-        cppclass *geom2 = ObjectWrap::Unwrap<cppclass>(args[0]->ToObject());    \
-        geos::geom::cppclass* result = geom->_instance->geosmethod(geom2->_instance);   \
-        args.GetReturnValue().Set(cppclass::New(result));                       \
-    }                                                                           
+#define NODE_GEOS_BINARY_TOPOLOGIC_FUNCTION(cppclass, cppmethod, geosmethod)            \
+    void cppclass::cppmethod(const FunctionCallbackInfo<Value>& args) {                 \
+        Isolate* isolate = Isolate::GetCurrent();                                       \
+        HandleScope scope(isolate);                                                     \
+        cppclass *geom = ObjectWrap::Unwrap<cppclass>(args.This());                     \
+        cppclass *geom2 = ObjectWrap::Unwrap<cppclass>(args[0]->ToObject());            \
+        try {                                                                           \
+            geos::geom::cppclass* result = geom->_instance->geosmethod(geom2->_instance);   \
+            args.GetReturnValue().Set(cppclass::New(result));                           \
+        } catch(geos::util::GEOSException exception) {                                  \
+            isolate->ThrowException(                                                    \
+                Exception::Error(String::NewFromUtf8(isolate, exception.what()))        \
+            );                                                                          \
+        }                                                                               \
+    }
 
-#define NODE_GEOS_DOUBLE_GETTER(cppclass, cppmethod, geosmethod)                          \
-    void cppclass::cppmethod(const FunctionCallbackInfo<Value>& args) {\
-        cppclass *geom = ObjectWrap::Unwrap<cppclass>(args.This());             \
-        args.GetReturnValue().Set(geom->_instance->geosmethod());                   \
-    }                                                                           
+#define NODE_GEOS_DOUBLE_GETTER(cppclass, cppmethod, geosmethod)                        \
+    void cppclass::cppmethod(const FunctionCallbackInfo<Value>& args) {                 \
+        Isolate* isolate = Isolate::GetCurrent();                                       \
+        HandleScope scope(isolate);                                                     \
+        cppclass *geom = ObjectWrap::Unwrap<cppclass>(args.This());                     \
+        try {                                                                           \
+            args.GetReturnValue().Set(geom->_instance->geosmethod());                   \
+        } catch(geos::util::GEOSException exception) {                                  \
+            isolate->ThrowException(                                                    \
+                Exception::Error(String::NewFromUtf8(isolate, exception.what()))        \
+            );                                                                          \
+        }                                                                               \
+    }
 
 #define NODE_GEOS_V8_FUNCTION(cppmethod) \
     static void cppmethod(const FunctionCallbackInfo<Value>& args); \
     static void cppmethod##Async(uv_work_t *req); \
-    static void cppmethod##AsyncComplete(uv_work_t *req, int status); 
+    static void cppmethod##AsyncComplete(uv_work_t *req, int status);

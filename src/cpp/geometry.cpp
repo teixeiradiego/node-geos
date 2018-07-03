@@ -112,7 +112,17 @@ void Geometry::ToString(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(isolate);
 
     Geometry* geom = ObjectWrap::Unwrap<Geometry>(args.This());
-    args.GetReturnValue().Set(String::NewFromUtf8(isolate, geom->_instance->toString().data()));
+
+    try {
+
+        args.GetReturnValue().Set(String::NewFromUtf8(isolate, geom->_instance->toString().data()));
+
+    } catch(geos::util::GEOSException exception) {
+        isolate->ThrowException(
+            Exception::Error(String::NewFromUtf8(isolate, exception.what()))
+        );
+    }
+
 }
 
 void Geometry::GetGeometryType(const FunctionCallbackInfo<Value>& args) {
@@ -120,7 +130,17 @@ void Geometry::GetGeometryType(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(isolate);
 
     Geometry* geom = ObjectWrap::Unwrap<Geometry>(args.This());
-    args.GetReturnValue().Set(String::NewFromUtf8(isolate, geom->_instance->getGeometryType().data()));
+
+    try {
+
+        args.GetReturnValue().Set(String::NewFromUtf8(isolate, geom->_instance->getGeometryType().data()));
+
+    } catch(geos::util::GEOSException exception) {
+        isolate->ThrowException(
+            Exception::Error(String::NewFromUtf8(isolate, exception.what()))
+        );
+    }
+
 }
 
 void Geometry::Distance(const FunctionCallbackInfo<Value>& args) {
@@ -129,7 +149,17 @@ void Geometry::Distance(const FunctionCallbackInfo<Value>& args) {
 
     Geometry* geom = ObjectWrap::Unwrap<Geometry>(args.This());
     Geometry* geom2 = ObjectWrap::Unwrap<Geometry>(args[0]->ToObject());
-    args.GetReturnValue().Set(Number::New(isolate, geom->_instance->distance(geom2->_instance)));
+
+    try {
+
+        args.GetReturnValue().Set(Number::New(isolate, geom->_instance->distance(geom2->_instance)));
+
+    } catch(geos::util::GEOSException exception) {
+        isolate->ThrowException(
+            Exception::Error(String::NewFromUtf8(isolate, exception.what()))
+        );
+    }
+
 }
 
 void Geometry::IsWithinDistance(const FunctionCallbackInfo<Value>& args) {
@@ -139,9 +169,19 @@ void Geometry::IsWithinDistance(const FunctionCallbackInfo<Value>& args) {
     Geometry* geom = ObjectWrap::Unwrap<Geometry>(args.This());
     Geometry* geom2 = ObjectWrap::Unwrap<Geometry>(args[0]->ToObject());
     double distance = args[0]->NumberValue();
-    args.GetReturnValue().Set(
-      geom->_instance->isWithinDistance(geom2->_instance, distance) ? True(isolate) : False(isolate)
-    );
+
+    try {
+
+        args.GetReturnValue().Set(
+            geom->_instance->isWithinDistance(geom2->_instance, distance) ? True(isolate) : False(isolate)
+        );
+
+    } catch(geos::util::GEOSException exception) {
+        isolate->ThrowException(
+            Exception::Error(String::NewFromUtf8(isolate, exception.what()))
+        );
+    }
+
 }
 
 void Geometry::SetSRID(const FunctionCallbackInfo<Value>& args) {
@@ -149,8 +189,19 @@ void Geometry::SetSRID(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(isolate);
 
     Geometry* geom = ObjectWrap::Unwrap<Geometry>(args.This());
-    geom->_instance->setSRID(args[0]->IntegerValue());
-    args.GetReturnValue().Set(Undefined(isolate));
+
+    try {
+
+        geom->_instance->setSRID(args[0]->IntegerValue());
+
+        args.GetReturnValue().Set(Undefined(isolate));
+
+    } catch(geos::util::GEOSException exception) {
+        isolate->ThrowException(
+            Exception::Error(String::NewFromUtf8(isolate, exception.what()))
+        );
+    }
+
 }
 
 void Geometry::ToJSON(const FunctionCallbackInfo<Value>& args) {
@@ -180,18 +231,27 @@ void Geometry::Buffer(const FunctionCallbackInfo<Value>& args) {
     Geometry* geom = ObjectWrap::Unwrap<Geometry>(args.This());
     distance = args[0]->NumberValue();
 
-    if (args.Length() == 1) {
-        result = Geometry::New(geom->_instance->buffer(distance));
-    } else if (args.Length() == 2) {
-        quadrantSegments = args[1]->IntegerValue();
-        result = Geometry::New(geom->_instance->buffer(distance, quadrantSegments));
-    } else {
-        quadrantSegments = args[1]->IntegerValue();
-        int endCapStyle = args[2]->IntegerValue();
-        result = Geometry::New(geom->_instance->buffer(distance, quadrantSegments, endCapStyle));
+    try {
+
+        if (args.Length() == 1) {
+            result = Geometry::New(geom->_instance->buffer(distance));
+        } else if (args.Length() == 2) {
+            quadrantSegments = args[1]->IntegerValue();
+            result = Geometry::New(geom->_instance->buffer(distance, quadrantSegments));
+        } else {
+            quadrantSegments = args[1]->IntegerValue();
+            int endCapStyle = args[2]->IntegerValue();
+            result = Geometry::New(geom->_instance->buffer(distance, quadrantSegments, endCapStyle));
+        }
+
+        args.GetReturnValue().Set(result);
+
+    } catch(geos::util::GEOSException exception) {
+        isolate->ThrowException(
+            Exception::Error(String::NewFromUtf8(isolate, exception.what()))
+        );
     }
 
-    args.GetReturnValue().Set(result);
 }
 
 void Geometry::GetEnvelopeInternal(const FunctionCallbackInfo<Value>& args) {
@@ -200,9 +260,18 @@ void Geometry::GetEnvelopeInternal(const FunctionCallbackInfo<Value>& args) {
 
     Geometry* geom = ObjectWrap::Unwrap<Geometry>(args.This());
 
-    Handle<Value> result = Envelope::New(geom->_instance->getEnvelopeInternal());
+    try {
 
-    args.GetReturnValue().Set(result);
+        Handle<Value> result = Envelope::New(geom->_instance->getEnvelopeInternal());
+
+        args.GetReturnValue().Set(result);
+
+    } catch(geos::util::GEOSException exception) {
+        isolate->ThrowException(
+            Exception::Error(String::NewFromUtf8(isolate, exception.what()))
+        );
+    }
+
 }
 
 //GEOS unary predicates
