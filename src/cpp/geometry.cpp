@@ -84,7 +84,11 @@ Handle<Value> Geometry::New(geos::geom::Geometry *geometry) {
     Local<v8::Object> instance;
 
     if (maybeInstance.IsEmpty()) {
+
         Nan::ThrowError("Could not create new Geometry instance");
+
+        return Undefined(isolate);
+
     } else {
 
         instance = maybeInstance.ToLocalChecked();

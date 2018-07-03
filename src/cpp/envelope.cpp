@@ -51,11 +51,15 @@ Handle<Value> Envelope::New(const geos::geom::Envelope *envelope) {
     Local<v8::Object> instance;
 
     if (maybeInstance.IsEmpty()) {
+
         Nan::ThrowError("Could not create new Envelope instance");
+
+        return Undefined(isolate);
+
     } else {
 
         instance = maybeInstance.ToLocalChecked();
-    
+
         env->Wrap(instance);
 
         return instance;
