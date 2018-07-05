@@ -60,7 +60,7 @@
 					geom->_instance->geosmethod() ? Nan::True() : Nan::False()\
 				);\
 \
-			} catch(geos::util::GEOSException exception) {\
+			} catch(const geos::util::GEOSException& exception) {\
 				Nan::ThrowError(Nan::New(exception.what()).ToLocalChecked());\
 			}\
 \
@@ -141,7 +141,7 @@
 					geom->_instance->geosmethod(geom2->_instance) ? Nan::True() : Nan::False()\
 				);\
 \
-			} catch(geos::util::GEOSException exception) {\
+			} catch(const geos::util::GEOSException& exception) {\
 				Nan::ThrowError(Nan::New(exception.what()).ToLocalChecked());\
 			}\
 \
@@ -160,7 +160,7 @@
 			cppnamespace::cppclass* result = geom->_instance->geosmethod();\
 			info.GetReturnValue().Set(cppclass::New(result));\
 \
-		} catch(geos::util::GEOSException exception) {\
+		} catch(const geos::util::GEOSException& exception) {\
 				Nan::ThrowError(Nan::New(exception.what()).ToLocalChecked());\
 		}\
 \
@@ -178,7 +178,7 @@
 			cppnamespace::cppclass* result = geom->_instance->geosmethod(geom2->_instance);\
 			info.GetReturnValue().Set(cppclass::New(result));\
 \
-		} catch(geos::util::GEOSException exception) {\
+		} catch(const geos::util::GEOSException& exception) {\
 				Nan::ThrowError(Nan::New(exception.what()).ToLocalChecked());\
 		}\
 \
@@ -192,7 +192,7 @@
 \
 		try {\
 			info.GetReturnValue().Set(geom->_instance->geosmethod());\
-		} catch(geos::util::GEOSException exception) {\
+		} catch(const geos::util::GEOSException& exception) {\
 				Nan::ThrowError(Nan::New(exception.what()).ToLocalChecked());\
 		}\
 \

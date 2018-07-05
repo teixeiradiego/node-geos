@@ -51,7 +51,7 @@ NAN_METHOD(WKTReader::Read) {
 		info.GetReturnValue().Set(Geometry::New(geom));
 	} catch (geos::io::ParseException e) {
 		Nan::ThrowError(Nan::New(e.what()).ToLocalChecked());
-	} catch (geos::util::GEOSException e) {
+	} catch (const geos::util::GEOSException& e) {
 		Nan::ThrowError(Nan::New(e.what()).ToLocalChecked());
 	} catch (...) {
 		Nan::ThrowError(Nan::New("Exception while reading WKT.").ToLocalChecked());

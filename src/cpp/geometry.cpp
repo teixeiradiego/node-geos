@@ -115,7 +115,7 @@ NAN_METHOD(Geometry::ToString) {
 
 		info.GetReturnValue().Set(Nan::New(geom->_instance->toString().data()).ToLocalChecked());
 
-	} catch(geos::util::GEOSException exception) {
+	} catch(const geos::util::GEOSException& exception) {
 		Nan::ThrowError(Nan::New(exception.what()).ToLocalChecked());
 	}
 
@@ -129,7 +129,7 @@ NAN_METHOD(Geometry::GetGeometryType) {
 
 		info.GetReturnValue().Set(Nan::New(geom->_instance->getGeometryType().data()).ToLocalChecked());
 
-	} catch(geos::util::GEOSException exception) {
+	} catch(const geos::util::GEOSException& exception) {
 		Nan::ThrowError(Nan::New(exception.what()).ToLocalChecked());
 	}
 
@@ -144,7 +144,7 @@ NAN_METHOD(Geometry::Distance) {
 
 		info.GetReturnValue().Set(Nan::New<Number>(geom->_instance->distance(geom2->_instance)));
 
-	} catch(geos::util::GEOSException exception) {
+	} catch(const geos::util::GEOSException& exception) {
 		Nan::ThrowError(Nan::New(exception.what()).ToLocalChecked());
 	}
 
@@ -162,7 +162,7 @@ NAN_METHOD(Geometry::IsWithinDistance) {
 			geom->_instance->isWithinDistance(geom2->_instance, distance) ? Nan::True() : Nan::False()
 		);
 
-	} catch(geos::util::GEOSException exception) {
+	} catch(const geos::util::GEOSException& exception) {
 		Nan::ThrowError(Nan::New(exception.what()).ToLocalChecked());
 	}
 
@@ -170,7 +170,7 @@ NAN_METHOD(Geometry::IsWithinDistance) {
 
 NAN_METHOD(Geometry::SetSRID) {
 
-	Geometry* geom = ObjectWrap::Unwrap<Geometry>(info.Holder());
+	Geometry* geom = Nan::ObjectWrap::Unwrap<Geometry>(info.Holder());
 
 	try {
 
@@ -178,7 +178,7 @@ NAN_METHOD(Geometry::SetSRID) {
 
 		info.GetReturnValue().Set(Nan::Undefined());
 
-	} catch(geos::util::GEOSException exception) {
+	} catch(const geos::util::GEOSException& exception) {
 		Nan::ThrowError(Nan::New(exception.what()).ToLocalChecked());
 	}
 
@@ -186,7 +186,7 @@ NAN_METHOD(Geometry::SetSRID) {
 
 NAN_METHOD(Geometry::ToJSON) {
 
-	Geometry* geom = ObjectWrap::Unwrap<Geometry>(info.Holder());
+	Geometry* geom = Nan::ObjectWrap::Unwrap<Geometry>(info.Holder());
 	GeoJSONWriter writer;
 
 	if (info.Length() >= 1 && info[0]->IsInt32()) {
@@ -207,7 +207,7 @@ NAN_METHOD(Geometry::Buffer) {
 	double distance;
 	int quadrantSegments;
 
-	Geometry* geom = ObjectWrap::Unwrap<Geometry>(info.Holder());
+	Geometry* geom = Nan::ObjectWrap::Unwrap<Geometry>(info.Holder());
 	distance = info[0]->NumberValue();
 
 	try {
@@ -227,7 +227,7 @@ NAN_METHOD(Geometry::Buffer) {
 
 		info.GetReturnValue().Set(result);
 
-	} catch(geos::util::GEOSException exception) {
+	} catch(const geos::util::GEOSException& exception) {
 		Nan::ThrowError(Nan::New(exception.what()).ToLocalChecked());
 	}
 
@@ -235,7 +235,7 @@ NAN_METHOD(Geometry::Buffer) {
 
 NAN_METHOD(Geometry::GetEnvelopeInternal) {
 
-	Geometry* geom = ObjectWrap::Unwrap<Geometry>(info.Holder());
+	Geometry* geom = Nan::ObjectWrap::Unwrap<Geometry>(info.Holder());
 
 	try {
 
@@ -243,7 +243,7 @@ NAN_METHOD(Geometry::GetEnvelopeInternal) {
 
 		info.GetReturnValue().Set(result);
 
-	} catch(geos::util::GEOSException exception) {
+	} catch(const geos::util::GEOSException& exception) {
 		Nan::ThrowError(Nan::New(exception.what()).ToLocalChecked());
 	}
 

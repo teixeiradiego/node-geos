@@ -63,7 +63,7 @@ NAN_METHOD(GeoJSONReader::Read) {
 
 	} catch (const char* e) {
 		Nan::ThrowError(Nan::New(e).ToLocalChecked());
-	} catch (geos::util::GEOSException e) {
+	} catch (const geos::util::GEOSException& e) {
 		Nan::ThrowError(Nan::New(e.what()).ToLocalChecked());
 	}
 
