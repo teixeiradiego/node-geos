@@ -51,7 +51,7 @@
   "dependencies": {
     "coffee-script": "*",
     "nan": "^2.9.2",
-    "node-gyp": ">=0.12.1",
+    "node-gyp": "^3.7.0",
     "prebuild-install": "^4.0.0"
   },
   "devDependencies": {

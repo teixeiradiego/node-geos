@@ -8,21 +8,21 @@
 #include "geometry.hpp"
 #include "geometryfactory.hpp"
 
-class WKTReader : public ObjectWrap {
+class WKTReader : public Nan::ObjectWrap {
 
-    public:
-        WKTReader();
-        WKTReader(const geos::geom::GeometryFactory *gf);
-        ~WKTReader();
-        static void Initialize(Handle<Object> target);
-        static Persistent<Function> constructor;
-        static void New(const FunctionCallbackInfo<Value>& args);
-        static void Read(const FunctionCallbackInfo<Value>& args);
+	public:
+		WKTReader();
+		WKTReader(const geos::geom::GeometryFactory *gf);
+		~WKTReader();
+		static NAN_MODULE_INIT(Initialize);
+		static Nan::Persistent<Function> constructor;
+		static NAN_METHOD(New);
+		static NAN_METHOD(Read);
 
-    protected:
+	protected:
 
-    private:
-        geos::io::WKTReader* _reader;
+	private:
+		geos::io::WKTReader* _reader;
 
 };
 #endif

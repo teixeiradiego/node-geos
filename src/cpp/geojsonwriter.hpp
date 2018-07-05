@@ -24,39 +24,39 @@ For the The GeoJSON Format Specification see http://geojson.org/geojson-spec.htm
 #include "binding.hpp"
 #include "geometry.hpp"
 
-class GeoJSONWriter : public ObjectWrap {
+class GeoJSONWriter : public Nan::ObjectWrap {
 
-    protected:
-        int decimalPlaces;
-        double factor;
-        bool bbox;
+	protected:
+		int decimalPlaces;
+		double factor;
+		bool bbox;
 
-    private:
-        static Persistent<Function> constructor;
+	private:
+		static Nan::Persistent<Function> constructor;
 
-    public:
-        GeoJSONWriter();
-        ~GeoJSONWriter();
-        void setRoundingPrecision(int places);
-        void setBbox(bool bbox);
-        Handle<Value> write(const geos::geom::Geometry* geom);
-        Handle<Value> writeBbox(const geos::geom::Geometry* geom);
+	public:
+		GeoJSONWriter();
+		~GeoJSONWriter();
+		void setRoundingPrecision(int places);
+		void setBbox(bool bbox);
+		Handle<Value> write(const geos::geom::Geometry* geom);
+		Handle<Value> writeBbox(const geos::geom::Geometry* geom);
 
-        static void Initialize(Handle<Object> target);
-        static void New(const FunctionCallbackInfo<Value>& args);
+		static NAN_MODULE_INIT(Initialize);
+		static NAN_METHOD(New);
 
-    protected:
-        double roundNumber(double coord);
-        Handle<Array> coordinateToArray(const geos::geom::Coordinate* coord);
-        Handle<Array> coordinateSequenceToArray(const geos::geom::CoordinateSequence* seq);
-        Handle<Array> geometryCollectionToArrayOfArrays(const geos::geom::GeometryCollection* geom);
-        Handle<Array> geometryCollectionToArrayOfObjects(const geos::geom::GeometryCollection* geom);
-        Handle<Value> getCoordsOrGeom(const geos::geom::Geometry* geom);
+	protected:
+		double roundNumber(double coord);
+		Handle<Array> coordinateToArray(const geos::geom::Coordinate* coord);
+		Handle<Array> coordinateSequenceToArray(const geos::geom::CoordinateSequence* seq);
+		Handle<Array> geometryCollectionToArrayOfArrays(const geos::geom::GeometryCollection* geom);
+		Handle<Array> geometryCollectionToArrayOfObjects(const geos::geom::GeometryCollection* geom);
+		Handle<Value> getCoordsOrGeom(const geos::geom::Geometry* geom);
 
-        static void SetRoundingPrecision(const FunctionCallbackInfo<Value>& args);
-        static void SetBbox(const FunctionCallbackInfo<Value>& args);
-        static void Write(const FunctionCallbackInfo<Value>& args);
-        static void WriteBbox(const FunctionCallbackInfo<Value>& args);
+		static NAN_METHOD(SetRoundingPrecision);
+		static NAN_METHOD(SetBbox);
+		static NAN_METHOD(Write);
+		static NAN_METHOD(WriteBbox);
 
 };
 

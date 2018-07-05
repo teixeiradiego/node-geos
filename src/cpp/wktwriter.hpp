@@ -5,22 +5,22 @@
 #include "binding.hpp"
 #include "geometry.hpp"
 
-class WKTWriter : public ObjectWrap {
+class WKTWriter : public Nan::ObjectWrap {
 
-    public:
-        WKTWriter();
-        ~WKTWriter();
-        static void Initialize(Handle<Object> target);
-        static Persistent<Function> constructor;
-        static void New(const FunctionCallbackInfo<Value>& args);
-        static void Write(const FunctionCallbackInfo<Value>& args);
+	public:
+		WKTWriter();
+		~WKTWriter();
+		static NAN_MODULE_INIT(Initialize);
+		static Nan::Persistent<Function> constructor;
+		static NAN_METHOD(New);
+		static NAN_METHOD(Write);
 
-    protected:
-        static void SetRoundingPrecision(const FunctionCallbackInfo<Value>& args);
-        static void SetTrim(const FunctionCallbackInfo<Value>& args);
+	protected:
+		static NAN_METHOD(SetRoundingPrecision);
+		static NAN_METHOD(SetTrim);
 
-    private:
-        geos::io::WKTWriter* _writer;
+	private:
+		geos::io::WKTWriter* _writer;
 
 };
 #endif

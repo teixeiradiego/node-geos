@@ -1,157 +1,139 @@
 #include "precisionmodel.hpp"
 
 PrecisionModel::PrecisionModel() {
-    _model = new geos::geom::PrecisionModel();
+	_model = new geos::geom::PrecisionModel();
 }
 
 PrecisionModel::PrecisionModel(double newScale) {
-    _model = new geos::geom::PrecisionModel(newScale);
+	_model = new geos::geom::PrecisionModel(newScale);
 }
 
 PrecisionModel::PrecisionModel(geos::geom::PrecisionModel::Type nModelType) {
-    _model = new geos::geom::PrecisionModel(nModelType);
+	_model = new geos::geom::PrecisionModel(nModelType);
 }
 PrecisionModel::PrecisionModel(const geos::geom::PrecisionModel *model) {
-    _model = (geos::geom::PrecisionModel*) model; //hacky
+	_model = (geos::geom::PrecisionModel*) model; //hacky
 }
 
 PrecisionModel::~PrecisionModel() {}
 
-Persistent<Function> PrecisionModel::constructor;
+Nan::Persistent<Function> PrecisionModel::constructor;
 
-void PrecisionModel::Initialize(Handle<Object> target) {
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
+NAN_MODULE_INIT(PrecisionModel::Initialize) {
 
-    Local<FunctionTemplate> tpl = FunctionTemplate::New(isolate, PrecisionModel::New);
-    tpl->InstanceTemplate()->SetInternalFieldCount(1);
-    tpl->SetClassName(String::NewFromUtf8(isolate, "PrecisionModel"));
+	Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(PrecisionModel::New);
+	tpl->InstanceTemplate()->SetInternalFieldCount(1);
+	tpl->SetClassName(Nan::New("PrecisionModel").ToLocalChecked());
 
-    NODE_SET_PROTOTYPE_METHOD(tpl, "getType", GetType);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "getScale", GetScale);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "getOffsetX", GetOffsetX);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "getOffsetY", GetOffsetY);
+	Nan::SetPrototypeMethod(tpl, "getType", GetType);
+	Nan::SetPrototypeMethod(tpl, "getScale", GetScale);
+	Nan::SetPrototypeMethod(tpl, "getOffsetX", GetOffsetX);
+	Nan::SetPrototypeMethod(tpl, "getOffsetY", GetOffsetY);
 
-    NODE_SET_PROTOTYPE_METHOD(tpl, "toString", ToString);
+	Nan::SetPrototypeMethod(tpl, "toString", ToString);
 
-    NODE_SET_PROTOTYPE_METHOD(tpl, "isFloating", IsFloating);
+	Nan::SetPrototypeMethod(tpl, "isFloating", IsFloating);
 
-    NODE_SET_PROTOTYPE_METHOD(tpl, "compareTo", CompareTo);
+	Nan::SetPrototypeMethod(tpl, "compareTo", CompareTo);
 
-    constructor.Reset(isolate, tpl->GetFunction());
+	constructor.Reset(tpl->GetFunction());
 
-    target->Set(String::NewFromUtf8(isolate, "PrecisionModel"), tpl->GetFunction());
+	target->Set(Nan::New("PrecisionModel").ToLocalChecked(), tpl->GetFunction());
+
 }
 
-void PrecisionModel::New(const FunctionCallbackInfo<Value>& args) {
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
+NAN_METHOD(PrecisionModel::New) {
 
-    PrecisionModel *model;
-    if (args.Length() == 0) {
-        model = new PrecisionModel();
-    } else {
-        if (args[0]->IsString()) {
-            //type
-            if(args[0]->ToString()->Equals(String::NewFromUtf8(isolate, "FIXED"))) {
-                model = new PrecisionModel(geos::geom::PrecisionModel::FIXED);
-            } else if (args[0]->ToString()->Equals(String::NewFromUtf8(isolate, "FLOATING"))) {
-                model = new PrecisionModel(geos::geom::PrecisionModel::FLOATING);
-            } else {
-                model = new PrecisionModel(geos::geom::PrecisionModel::FLOATING_SINGLE);
-            }
-        } else {
-            //double
-            model = new PrecisionModel(args[0]->NumberValue());
-        }
-    }
-    model->Wrap(args.This());
-    args.GetReturnValue().Set(args.This());
+	PrecisionModel *model;
+
+	if (info.Length() == 0) {
+		model = new PrecisionModel();
+	} else {
+
+		if (info[0]->IsString()) {
+
+			if(info[0]->ToString()->Equals(Nan::New("FIXED").ToLocalChecked())) {
+				model = new PrecisionModel(geos::geom::PrecisionModel::FIXED);
+			} else if (info[0]->ToString()->Equals(Nan::New("FLOATING").ToLocalChecked())) {
+				model = new PrecisionModel(geos::geom::PrecisionModel::FLOATING);
+			} else {
+				model = new PrecisionModel(geos::geom::PrecisionModel::FLOATING_SINGLE);
+			}
+
+		} else {
+			model = new PrecisionModel(info[0]->NumberValue());
+		}
+
+	}
+
+	model->Wrap(info.This());
+	info.GetReturnValue().Set(info.This());
+
 }
 
 Handle<Value> PrecisionModel::New(const geos::geom::PrecisionModel *m) {
 
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
+	Isolate* isolate = Isolate::GetCurrent();
+	HandleScope scope(isolate);
 
-    PrecisionModel *model = new PrecisionModel(m);
-    Handle<Value> ext = External::New(isolate, model);
+	PrecisionModel *model = new PrecisionModel(m);
+	Handle<Value> ext = External::New(isolate, model);
 
-    Local<Function> cons = Local<Function>::New(isolate, constructor);
-    MaybeLocal<v8::Object> maybeInstance = Nan::NewInstance(cons, 1, &ext);
-    Local<v8::Object> instance;
+	Local<Function> cons = Local<Function>::New(isolate, constructor);
+	MaybeLocal<v8::Object> maybeInstance = Nan::NewInstance(cons, 1, &ext);
+	Local<v8::Object> instance;
 
-    if (maybeInstance.IsEmpty()) {
+	if (maybeInstance.IsEmpty()) {
 
-        Nan::ThrowError("Could not create new PrecisionModel instance");
+		Nan::ThrowError("Could not create new PrecisionModel instance");
 
-        return Undefined(isolate);
+		return Undefined(isolate);
 
-    } else {
+	} else {
 
-        instance = maybeInstance.ToLocalChecked();
+		instance = maybeInstance.ToLocalChecked();
 
-        model->Wrap(instance);
+		model->Wrap(instance);
 
-        return instance;
+		return instance;
 
-    }
+	}
 
 }
 
-void PrecisionModel::GetType(const FunctionCallbackInfo<Value>& args) {
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
-
-    PrecisionModel *model = ObjectWrap::Unwrap<PrecisionModel>(args.This());
-    args.GetReturnValue().Set(Integer::New(isolate, model->_model->getType()));
+NAN_METHOD(PrecisionModel::GetType) {
+	PrecisionModel *model = Nan::ObjectWrap::Unwrap<PrecisionModel>(info.Holder());
+	info.GetReturnValue().Set(Nan::New<Integer>(model->_model->getType()));
 }
+
 //TODO add a macro for this?
-void PrecisionModel::GetScale(const FunctionCallbackInfo<Value>& args) {
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
-
-    PrecisionModel *model = ObjectWrap::Unwrap<PrecisionModel>(args.This());
-    args.GetReturnValue().Set(Number::New(isolate, model->_model->getScale()));
+NAN_METHOD(PrecisionModel::GetScale) {
+	PrecisionModel *model = Nan::ObjectWrap::Unwrap<PrecisionModel>(info.Holder());
+	info.GetReturnValue().Set(Nan::New<Number>(model->_model->getScale()));
 }
 
-void PrecisionModel::GetOffsetX(const FunctionCallbackInfo<Value>& args) {
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
-
-    PrecisionModel *model = ObjectWrap::Unwrap<PrecisionModel>(args.This());
-    args.GetReturnValue().Set(Number::New(isolate, model->_model->getOffsetX()));
+NAN_METHOD(PrecisionModel::GetOffsetX) {
+	PrecisionModel *model = Nan::ObjectWrap::Unwrap<PrecisionModel>(info.Holder());
+	info.GetReturnValue().Set(Nan::New<Number>(model->_model->getOffsetX()));
 }
 
-void PrecisionModel::GetOffsetY(const FunctionCallbackInfo<Value>& args) {
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
-
-    PrecisionModel *model = ObjectWrap::Unwrap<PrecisionModel>(args.This());
-    args.GetReturnValue().Set(Number::New(isolate, model->_model->getOffsetY()));
+NAN_METHOD(PrecisionModel::GetOffsetY) {
+	PrecisionModel *model = Nan::ObjectWrap::Unwrap<PrecisionModel>(info.Holder());
+	info.GetReturnValue().Set(Nan::New<Number>(model->_model->getOffsetY()));
 }
 
-void PrecisionModel::ToString(const FunctionCallbackInfo<Value>& args) {
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
-
-    PrecisionModel *model = ObjectWrap::Unwrap<PrecisionModel>(args.This());
-    args.GetReturnValue().Set(String::NewFromUtf8(isolate, model->_model->toString().data()));
+NAN_METHOD(PrecisionModel::ToString) {
+	PrecisionModel *model = Nan::ObjectWrap::Unwrap<PrecisionModel>(info.Holder());
+	info.GetReturnValue().Set(Nan::New(model->_model->toString().data()).ToLocalChecked());
 }
 
-void PrecisionModel::IsFloating(const FunctionCallbackInfo<Value>& args) {
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
-
-    PrecisionModel *model = ObjectWrap::Unwrap<PrecisionModel>(args.This());
-    args.GetReturnValue().Set(model->_model->isFloating() ? True(isolate) : False(isolate));
+NAN_METHOD(PrecisionModel::IsFloating) {
+	PrecisionModel *model = Nan::ObjectWrap::Unwrap<PrecisionModel>(info.Holder());
+	info.GetReturnValue().Set(model->_model->isFloating() ? Nan::True() : Nan::False());
 }
 
-void PrecisionModel::CompareTo(const FunctionCallbackInfo<Value>& args) {
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
-
-    PrecisionModel *model = ObjectWrap::Unwrap<PrecisionModel>(args.This());
-    PrecisionModel *model2 = ObjectWrap::Unwrap<PrecisionModel>(args[0]->ToObject());
-    args.GetReturnValue().Set(Integer::New(isolate, model->_model->compareTo(model2->_model)));
+NAN_METHOD(PrecisionModel::CompareTo) {
+	PrecisionModel *model = Nan::ObjectWrap::Unwrap<PrecisionModel>(info.Holder());
+	PrecisionModel *model2 = Nan::ObjectWrap::Unwrap<PrecisionModel>(info[0]->ToObject());
+	info.GetReturnValue().Set(Nan::New<Integer>(model->_model->compareTo(model2->_model)));
 }

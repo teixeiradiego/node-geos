@@ -1,45 +1,43 @@
 #include "wkbwriter.hpp"
 
 WKBWriter::WKBWriter() {
-    _writer = new geos::io::WKBWriter();
+	_writer = new geos::io::WKBWriter();
 }
 
 WKBWriter::~WKBWriter() {}
 
-Persistent<Function> WKBWriter::constructor;
+Nan::Persistent<Function> WKBWriter::constructor;
 
-void WKBWriter::Initialize(Handle<Object> target) {
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
+NAN_MODULE_INIT(WKBWriter::Initialize) {
 
-    Local<FunctionTemplate> tpl = FunctionTemplate::New(isolate, WKBWriter::New);
-    tpl->InstanceTemplate()->SetInternalFieldCount(1);
-    tpl->SetClassName(String::NewFromUtf8(isolate, "WKBWriter"));
+	Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(WKBWriter::New);
+	tpl->InstanceTemplate()->SetInternalFieldCount(1);
+	tpl->SetClassName(Nan::New("WKBWriter").ToLocalChecked());
 
-    NODE_SET_PROTOTYPE_METHOD(tpl, "writeHEX", WKBWriter::WriteHEX);
+	Nan::SetPrototypeMethod(tpl, "writeHEX", WKBWriter::WriteHEX);
 
-    constructor.Reset(isolate, tpl->GetFunction());
+	constructor.Reset(tpl->GetFunction());
 
-    target->Set(String::NewFromUtf8(isolate, "WKBWriter"), tpl->GetFunction());
+	target->Set(Nan::New("WKBWriter").ToLocalChecked(), tpl->GetFunction());
+
 }
 
-void WKBWriter::New(const FunctionCallbackInfo<Value>& args) {
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
+NAN_METHOD(WKBWriter::New) {
 
-    WKBWriter* writer = new WKBWriter();
-    writer->Wrap(args.This());
-    args.GetReturnValue().Set(args.This());
+	WKBWriter* writer = new WKBWriter();
+	writer->Wrap(info.This());
+	info.GetReturnValue().Set(info.This());
+
 }
 
-void WKBWriter::WriteHEX(const FunctionCallbackInfo<Value>& args) {
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
+NAN_METHOD(WKBWriter::WriteHEX) {
 
-    WKBWriter *writer = ObjectWrap::Unwrap<WKBWriter>(args.This());
-    Geometry *geom = ObjectWrap::Unwrap<Geometry>(args[0]->ToObject());
-    //TODO catch exception?
-    std::stringstream ss;
-    writer->_writer->writeHEX(*geom->_instance, ss);
-    args.GetReturnValue().Set(String::NewFromUtf8(isolate, ss.str().c_str()));
+	WKBWriter *writer = Nan::ObjectWrap::Unwrap<WKBWriter>(info.Holder());
+	Geometry *geom = Nan::ObjectWrap::Unwrap<Geometry>(info[0]->ToObject());
+
+	//TODO catch exception?
+	std::stringstream ss;
+	writer->_writer->writeHEX(*geom->_instance, ss);
+	info.GetReturnValue().Set(Nan::New(ss.str().c_str()).ToLocalChecked());
+
 }

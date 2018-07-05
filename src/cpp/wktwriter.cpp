@@ -1,65 +1,57 @@
 #include "wktwriter.hpp"
 
 WKTWriter::WKTWriter() {
-    _writer = new geos::io::WKTWriter();
+	_writer = new geos::io::WKTWriter();
 }
 
 WKTWriter::~WKTWriter() {}
 
-Persistent<Function> WKTWriter::constructor;
+Nan::Persistent<Function> WKTWriter::constructor;
 
-void WKTWriter::Initialize(Handle<Object> target) {
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
+NAN_MODULE_INIT(WKTWriter::Initialize) {
 
-    Local<FunctionTemplate> tpl = FunctionTemplate::New(isolate, WKTWriter::New);
+	Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(WKTWriter::New);
 
-    tpl->InstanceTemplate()->SetInternalFieldCount(1);
-    tpl->SetClassName(String::NewFromUtf8(isolate, "WKTWriter"));
+	tpl->InstanceTemplate()->SetInternalFieldCount(1);
+	tpl->SetClassName(Nan::New("WKTWriter").ToLocalChecked());
 
-    NODE_SET_PROTOTYPE_METHOD(tpl, "write", WKTWriter::Write);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "setRoundingPrecision", WKTWriter::SetRoundingPrecision);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "setTrim", WKTWriter::SetTrim);
+	Nan::SetPrototypeMethod(tpl, "write", WKTWriter::Write);
+	Nan::SetPrototypeMethod(tpl, "setRoundingPrecision", WKTWriter::SetRoundingPrecision);
+	Nan::SetPrototypeMethod(tpl, "setTrim", WKTWriter::SetTrim);
 
-    constructor.Reset(isolate, tpl->GetFunction());
+	constructor.Reset(tpl->GetFunction());
 
-    target->Set(String::NewFromUtf8(isolate, "WKTWriter"), tpl->GetFunction());
+	target->Set(Nan::New("WKTWriter").ToLocalChecked(), tpl->GetFunction());
 }
 
-void WKTWriter::New(const FunctionCallbackInfo<Value>& args) {
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
-
-    WKTWriter* writer = new WKTWriter();
-    writer->Wrap(args.This());
-    args.GetReturnValue().Set(args.This());
+NAN_METHOD(WKTWriter::New) {
+	WKTWriter* writer = new WKTWriter();
+	writer->Wrap(info.This());
+	info.GetReturnValue().Set(info.This());
 }
 
-void WKTWriter::Write(const FunctionCallbackInfo<Value>& args) {
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
+NAN_METHOD(WKTWriter::Write) {
 
-    WKTWriter *writer = ObjectWrap::Unwrap<WKTWriter>(args.This());
-    Geometry *geom = ObjectWrap::Unwrap<Geometry>(args[0]->ToObject());
-    //TODO catch exception?
-    std::string str = writer->_writer->write(geom->_instance);
-    args.GetReturnValue().Set(String::NewFromUtf8(isolate, str.data()));
+	WKTWriter *writer = Nan::ObjectWrap::Unwrap<WKTWriter>(info.Holder());
+	Geometry *geom = Nan::ObjectWrap::Unwrap<Geometry>(info[0]->ToObject());
+
+	//TODO catch exception?
+	std::string str = writer->_writer->write(geom->_instance);
+	info.GetReturnValue().Set(Nan::New(str.data()).ToLocalChecked());
 }
 
-void WKTWriter::SetRoundingPrecision(const FunctionCallbackInfo<Value>& args) {
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
+NAN_METHOD(WKTWriter::SetRoundingPrecision) {
 
-    WKTWriter *writer = ObjectWrap::Unwrap<WKTWriter>(args.This());
-    writer->_writer->setRoundingPrecision(args[0]->Int32Value());
-    args.GetReturnValue().Set(Undefined(isolate));
+	WKTWriter *writer = Nan::ObjectWrap::Unwrap<WKTWriter>(info.Holder());
+	writer->_writer->setRoundingPrecision(info[0]->Int32Value());
+	info.GetReturnValue().Set(Nan::Undefined());
+
 }
 
-void WKTWriter::SetTrim(const FunctionCallbackInfo<Value>& args) {
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
+NAN_METHOD(WKTWriter::SetTrim) {
 
-    WKTWriter *writer = ObjectWrap::Unwrap<WKTWriter>(args.This());
-    writer->_writer->setTrim(args[0]->BooleanValue());
-    args.GetReturnValue().Set(Undefined(isolate));
+	WKTWriter *writer = Nan::ObjectWrap::Unwrap<WKTWriter>(info.Holder());
+	writer->_writer->setTrim(info[0]->BooleanValue());
+	info.GetReturnValue().Set(Nan::Undefined());
+
 }

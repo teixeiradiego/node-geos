@@ -17,7 +17,6 @@ For the The GeoJSON Format Specification see http://geojson.org/geojson-spec.htm
 
 #include <vector>
 #include <string.h>
-#include <nan.h>
 #include <geos/geom/LinearRing.h>
 #include <geos/geom/GeometryFactory.h>
 #include <geos/geom/CoordinateSequence.h>
@@ -27,42 +26,42 @@ For the The GeoJSON Format Specification see http://geojson.org/geojson-spec.htm
 #include "geometry.hpp"
 #include "geometryfactory.hpp"
 
-class GeoJSONReader : public ObjectWrap {
+class GeoJSONReader : public Nan::ObjectWrap {
 
-    protected:
-        const geos::geom::GeometryFactory* geometryFactory;
-        const geos::geom::PrecisionModel* precisionModel;
-        const geos::geom::CoordinateSequenceFactory* coordinateSequenceFactory;
+	protected:
+		const geos::geom::GeometryFactory* geometryFactory;
+		const geos::geom::PrecisionModel* precisionModel;
+		const geos::geom::CoordinateSequenceFactory* coordinateSequenceFactory;
 
-    private:
-        static Persistent<Function> constructor;
+	private:
+		static Nan::Persistent<Function> constructor;
 
-    public:
-        GeoJSONReader();
-        GeoJSONReader(const geos::geom::GeometryFactory* gf);
-        ~GeoJSONReader();
-        geos::geom::Geometry* read(Handle<Value> value);
+	public:
+		GeoJSONReader();
+		GeoJSONReader(const geos::geom::GeometryFactory* gf);
+		~GeoJSONReader();
+		geos::geom::Geometry* read(Handle<Value> value);
 
-        static void Initialize(Handle<Object> target);
-        static void New(const FunctionCallbackInfo<Value>& args);
+		static NAN_MODULE_INIT(Initialize);
+		static NAN_METHOD(New);
 
-    protected:
-        Handle<Value> getCoordsArray(Handle<Object> geojson);
-        Handle<Array> getGeomsArray(Handle<Object> geojson);
-        geos::geom::Coordinate getCoordinate(Handle<Value> coords);
-        geos::geom::Coordinate getCoordinate(Handle<Value> coords, bool acceptArrayOnly);
-        geos::geom::CoordinateSequence* getCoordinates(Handle<Value> value);
-        geos::geom::LinearRing* getLinearRing(Handle<Value> value);
-        geos::geom::Point* getPoint(Handle<Value> coords);
-        geos::geom::LineString* getLineString(Handle<Value> coords);
-        geos::geom::Polygon* getPolygon(Handle<Value> coords);
-        geos::geom::MultiPoint* getMultiPoint(Handle<Value> coords);
-        geos::geom::MultiLineString* getMultiLineString(Handle<Value> coords);
-        geos::geom::MultiPolygon* getMultiPolygon(Handle<Value> coords);
-        geos::geom::GeometryCollection* getGeometryCollection(Handle<Array> array);
+	protected:
+		Handle<Value> getCoordsArray(Handle<Object> geojson);
+		Handle<Array> getGeomsArray(Handle<Object> geojson);
+		geos::geom::Coordinate getCoordinate(Handle<Value> coords);
+		geos::geom::Coordinate getCoordinate(Handle<Value> coords, bool acceptArrayOnly);
+		geos::geom::CoordinateSequence* getCoordinates(Handle<Value> value);
+		geos::geom::LinearRing* getLinearRing(Handle<Value> value);
+		geos::geom::Point* getPoint(Handle<Value> coords);
+		geos::geom::LineString* getLineString(Handle<Value> coords);
+		geos::geom::Polygon* getPolygon(Handle<Value> coords);
+		geos::geom::MultiPoint* getMultiPoint(Handle<Value> coords);
+		geos::geom::MultiLineString* getMultiLineString(Handle<Value> coords);
+		geos::geom::MultiPolygon* getMultiPolygon(Handle<Value> coords);
+		geos::geom::GeometryCollection* getGeometryCollection(Handle<Array> array);
 
-        static void Read(const FunctionCallbackInfo<Value>& args);
-        static double valueToDouble(Handle<Value> value);
+		static NAN_METHOD(Read);
+		static double valueToDouble(Handle<Value> value);
 
 };
 

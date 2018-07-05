@@ -1,34 +1,29 @@
 #ifndef PRECISION_MODEL_HPP
 #define PRECISION_MODEL_HPP
 
-#include <nan.h>
 #include <geos/geom/PrecisionModel.h>
 #include "binding.hpp"
 
-class PrecisionModel : public ObjectWrap {
-    public:
-        PrecisionModel();
-        PrecisionModel(double newScale);
-        PrecisionModel(geos::geom::PrecisionModel::Type nModelType);
-        PrecisionModel(const geos::geom::PrecisionModel *model);
-        ~PrecisionModel();
-        geos::geom::PrecisionModel *_model;
+class PrecisionModel : public Nan::ObjectWrap {
+	public:
+		PrecisionModel();
+		PrecisionModel(double newScale);
+		PrecisionModel(geos::geom::PrecisionModel::Type nModelType);
+		PrecisionModel(const geos::geom::PrecisionModel *model);
+		~PrecisionModel();
+		geos::geom::PrecisionModel *_model;
 
-        static void Initialize(Handle<Object> target);
-        static Persistent<Function> constructor;
-        static void New(const FunctionCallbackInfo<Value>& args);
-        static Handle<Value> New(const geos::geom::PrecisionModel *model);
-        static void GetType(const FunctionCallbackInfo<Value>& args);
-        static void GetScale(const FunctionCallbackInfo<Value>& args);
-        static void GetOffsetX(const FunctionCallbackInfo<Value>& args);
-        static void GetOffsetY(const FunctionCallbackInfo<Value>& args);
-        static void ToString(const FunctionCallbackInfo<Value>& args);
-        static void IsFloating(const FunctionCallbackInfo<Value>& args);
-        static void CompareTo(const FunctionCallbackInfo<Value>& args);
-
-    protected:
-
-    private:
+		static NAN_MODULE_INIT(Initialize);
+		static Nan::Persistent<Function> constructor;
+		static NAN_METHOD(New);
+		static Handle<Value> New(const geos::geom::PrecisionModel *model);
+		static NAN_METHOD(GetType);
+		static NAN_METHOD(GetScale);
+		static NAN_METHOD(GetOffsetX);
+		static NAN_METHOD(GetOffsetY);
+		static NAN_METHOD(ToString);
+		static NAN_METHOD(IsFloating);
+		static NAN_METHOD(CompareTo);
 
 };
 #endif

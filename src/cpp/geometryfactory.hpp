@@ -7,27 +7,24 @@
 #include "geos/geom/GeometryFactory.h"
 #include "geos/geom/PrecisionModel.h"
 
-class GeometryFactory : public ObjectWrap {
+class GeometryFactory : public Nan::ObjectWrap {
 
-    public:
-        geos::geom::GeometryFactory::unique_ptr _factory;
+	public:
 
-        GeometryFactory();
-        GeometryFactory(const geos::geom::PrecisionModel *pm);
-        GeometryFactory(const geos::geom::PrecisionModel *pm, int newSRID);
-        ~GeometryFactory();
+		geos::geom::GeometryFactory::unique_ptr _factory;
 
-        static void Initialize(Handle<Object> target);
-        static Persistent<Function> constructor;
-        static void New(const FunctionCallbackInfo<Value>& args);
+		GeometryFactory();
+		GeometryFactory(const geos::geom::PrecisionModel *pm);
+		GeometryFactory(const geos::geom::PrecisionModel *pm, int newSRID);
+		~GeometryFactory();
 
-        static void GetPrecisionModel(const FunctionCallbackInfo<Value>& args);
-        static void GetSRID(const FunctionCallbackInfo<Value>& args);
-        static void Destroy(const FunctionCallbackInfo<Value>& args);
+		static NAN_MODULE_INIT(Initialize);
+		static Nan::Persistent<Function> constructor;
+		static NAN_METHOD(New);
 
-    protected:
-
-    private:
+		static NAN_METHOD(GetPrecisionModel);
+		static NAN_METHOD(GetSRID);
+		static NAN_METHOD(Destroy);
 
 };
 #endif

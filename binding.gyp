@@ -5,12 +5,14 @@
       "sources": [
         "src/cpp/binding.cpp",
         "src/cpp/geometry.cpp",
+        "src/cpp/preparedgeometry.cpp",
         "src/cpp/envelope.cpp",
         "src/cpp/wktreader.cpp",
         "src/cpp/wkbreader.cpp",
         "src/cpp/wktwriter.cpp",
         "src/cpp/wkbwriter.cpp",
         "src/cpp/geometryfactory.cpp",
+        "src/cpp/preparedgeometryfactory.cpp",
         "src/cpp/precisionmodel.cpp",
         "src/cpp/geojsonwriter.cpp",
         "src/cpp/geojsonreader.cpp"

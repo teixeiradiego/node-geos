@@ -1,102 +1,102 @@
 #include "envelope.hpp"
 
 Envelope::Envelope() {
-    _instance = new geos::geom::Envelope();
+	_instance = new geos::geom::Envelope();
 }
 
 Envelope::Envelope(const geos::geom::Envelope *envelope) {
-    _instance = envelope;
+	_instance = envelope;
 }
 
 Envelope::Envelope(double x1, double x2, double y1, double y2) {
-    _instance = new geos::geom::Envelope(x1, x2, y1, y2);
+	_instance = new geos::geom::Envelope(x1, x2, y1, y2);
 }
 
 Envelope::~Envelope() {}
 
-Persistent<Function> Envelope::constructor;
+Nan::Persistent<Function> Envelope::constructor;
 
-void Envelope::Initialize(Handle<Object> target) {
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
+NAN_MODULE_INIT(Envelope::Initialize) {
 
-    Local<FunctionTemplate> tpl = FunctionTemplate::New(isolate, Envelope::New);
+	Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(Envelope::New);
+	tpl->InstanceTemplate()->SetInternalFieldCount(1);
+	tpl->SetClassName(Nan::New("Envelope").ToLocalChecked());
 
-    tpl->InstanceTemplate()->SetInternalFieldCount(1);
-    tpl->SetClassName(String::NewFromUtf8(isolate, "Envelope"));
+	Nan::SetPrototypeMethod(tpl, "toString", Envelope::ToString);
 
-    NODE_SET_PROTOTYPE_METHOD(tpl, "toString", Envelope::ToString);
+	Nan::SetPrototypeMethod(tpl, "getMaxY", Envelope::GetMaxY);
+	Nan::SetPrototypeMethod(tpl, "getMaxX", Envelope::GetMaxX);
+	Nan::SetPrototypeMethod(tpl, "getMinY", Envelope::GetMinY);
+	Nan::SetPrototypeMethod(tpl, "getMinX", Envelope::GetMinX);
 
-    NODE_SET_PROTOTYPE_METHOD(tpl, "getMaxY", Envelope::GetMaxY);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "getMaxX", Envelope::GetMaxX);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "getMinY", Envelope::GetMinY);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "getMinX", Envelope::GetMinX);
+	Nan::SetPrototypeMethod(tpl, "intersects", Envelope::Intersects);
 
-    NODE_SET_PROTOTYPE_METHOD(tpl, "intersects", Envelope::Intersects);
+	constructor.Reset(tpl->GetFunction());
 
-    constructor.Reset(isolate, tpl->GetFunction());
-
-    target->Set(String::NewFromUtf8(isolate, "Envelope"), tpl->GetFunction());
+	target->Set(Nan::New("Envelope").ToLocalChecked(), tpl->GetFunction());
 }
 
 Handle<Value> Envelope::New(const geos::geom::Envelope *envelope) {
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
 
-    Envelope *env = new Envelope(envelope);
-    Handle<Value> ext = External::New(isolate, env);
+	Isolate* isolate = Isolate::GetCurrent();
+	HandleScope scope(isolate);
 
-    Local<Function> cons = Local<Function>::New(isolate, constructor);
-    MaybeLocal<v8::Object> maybeInstance = Nan::NewInstance(cons, 1, &ext);
-    Local<v8::Object> instance;
+	Envelope *env = new Envelope(envelope);
+	Handle<Value> ext = External::New(isolate, env);
 
-    if (maybeInstance.IsEmpty()) {
+	Local<Function> cons = Local<Function>::New(isolate, constructor);
+	MaybeLocal<v8::Object> maybeInstance = Nan::NewInstance(cons, 1, &ext);
+	Local<v8::Object> instance;
 
-        Nan::ThrowError("Could not create new Envelope instance");
+	if (maybeInstance.IsEmpty()) {
 
-        return Undefined(isolate);
+		Nan::ThrowError("Could not create new Envelope instance");
 
-    } else {
+		return Undefined(isolate);
 
-        instance = maybeInstance.ToLocalChecked();
+	} else {
 
-        env->Wrap(instance);
+		instance = maybeInstance.ToLocalChecked();
 
-        return instance;
+		env->Wrap(instance);
 
-    }
+		return instance;
 
-}
-
-void Envelope::New(const FunctionCallbackInfo<Value>& args) {
-
-    Envelope* envelope;
-
-    if (args.Length() == 0) {
-        envelope = new Envelope();
-    } else if (args.Length() == 1) {
-        Envelope* env = ObjectWrap::Unwrap<Envelope>(args[0]->ToObject());
-        envelope = new Envelope(env->_instance);
-    } else {
-        double minX = args[0]->NumberValue();
-        double maxX = args[1]->NumberValue();
-        double minY = args[2]->NumberValue();
-        double maxY = args[3]->NumberValue();
-        envelope = new Envelope(minX, maxX, minY, maxY);
-    }
-
-    envelope->Wrap(args.This());
-    args.GetReturnValue().Set(args.This());
+	}
 
 }
 
-void Envelope::ToString(const FunctionCallbackInfo<Value>& args) {
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
+NAN_METHOD(Envelope::New) {
 
-    Envelope* envelope = ObjectWrap::Unwrap<Envelope>(args.This());
+	Envelope* envelope;
 
-    args.GetReturnValue().Set(String::NewFromUtf8(isolate, envelope->_instance->toString().c_str()));
+	if (info.Length() == 0) {
+		envelope = new Envelope();
+	} else if (info.Length() == 1) {
+		Envelope* env = Nan::ObjectWrap::Unwrap<Envelope>(info[0]->ToObject());
+		envelope = new Envelope(env->_instance);
+	} else {
+		double minX = info[0]->NumberValue();
+		double maxX = info[1]->NumberValue();
+		double minY = info[2]->NumberValue();
+		double maxY = info[3]->NumberValue();
+		envelope = new Envelope(minX, maxX, minY, maxY);
+	}
+
+	envelope->Wrap(info.This());
+	info.GetReturnValue().Set(info.This());
+
+}
+
+NAN_METHOD(Envelope::ToString) {
+
+	Isolate* isolate = Isolate::GetCurrent();
+	HandleScope scope(isolate);
+
+	Envelope* envelope = Nan::ObjectWrap::Unwrap<Envelope>(info.Holder());
+
+	info.GetReturnValue().Set(Nan::New(envelope->_instance->toString().c_str()).ToLocalChecked());
+
 }
 
 NODE_GEOS_DOUBLE_GETTER(Envelope, GetMaxY, getMaxY);
@@ -105,5 +105,4 @@ NODE_GEOS_DOUBLE_GETTER(Envelope, GetMinY, getMinY);
 NODE_GEOS_DOUBLE_GETTER(Envelope, GetMinX, getMinX);
 
 // GEOS binary predicates
-NODE_GEOS_BINARY_PREDICATE(Envelope, Intersects, intersects);
-
+NODE_GEOS_BINARY_PREDICATE(Envelope, Envelope, Intersects, intersects);

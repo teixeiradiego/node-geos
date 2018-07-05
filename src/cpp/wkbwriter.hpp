@@ -6,20 +6,18 @@
 #include "binding.hpp"
 #include "geometry.hpp"
 
-class WKBWriter : public ObjectWrap {
+class WKBWriter : public Nan::ObjectWrap {
 
-    public:
-        WKBWriter();
-        ~WKBWriter();
-        static void Initialize(Handle<Object> target);
-        static Persistent<Function> constructor;
-        static void New(const FunctionCallbackInfo<Value>& args);
-        static void WriteHEX(const FunctionCallbackInfo<Value>& args);
+	public:
+		WKBWriter();
+		~WKBWriter();
+		static NAN_MODULE_INIT(Initialize);
+		static Nan::Persistent<Function> constructor;
+		static NAN_METHOD(New);
+		static NAN_METHOD(WriteHEX);
 
-    protected:
-
-    private:
-        geos::io::WKBWriter* _writer;
+	private:
+		geos::io::WKBWriter* _writer;
 
 };
 #endif

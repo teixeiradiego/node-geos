@@ -2,38 +2,43 @@
 #define ENVELOPE_HPP
 
 #include <uv.h>
-#include <nan.h>
 #include <geos/geom/Envelope.h>
 #include <geos/util/GEOSException.h>
 #include "binding.hpp"
 #include "geojsonwriter.hpp"
 
-class Envelope : public ObjectWrap {
- public:
-    const geos::geom::Envelope* _instance;
-    Envelope();
-    Envelope(double x1, double x2, double y1, double y2);
-    Envelope(const geos::geom::Envelope *envelope);
-    ~Envelope();
-    static void Initialize(Handle<Object> target);
-    static Handle<Value> New(const geos::geom::Envelope* envelope);
+class Envelope : public Nan::ObjectWrap {
 
-    void _ref() { Ref(); };
-    void _unref() { Unref(); };
+	public:
 
- protected:
-    static void New(const FunctionCallbackInfo<Value>& args);
+		const geos::geom::Envelope * _instance;
 
-    static void GetMaxY(const FunctionCallbackInfo<Value>& args);
-    static void GetMaxX(const FunctionCallbackInfo<Value>& args);
-    static void GetMinY(const FunctionCallbackInfo<Value>& args);
-    static void GetMinX(const FunctionCallbackInfo<Value>& args);
+		Envelope();
+		Envelope(double x1, double x2, double y1, double y2);
+		Envelope(const geos::geom::Envelope * envelope);
+		~Envelope();
 
-    NODE_GEOS_V8_FUNCTION(Intersects);
+		static NAN_MODULE_INIT(Initialize);
+		static Handle<Value> New(const geos::geom::Envelope * envelope);
 
- private:
-    static Persistent<Function> constructor;
-    static void ToString(const FunctionCallbackInfo<Value>& args);
+		void _ref() { Ref(); };
+		void _unref() { Unref(); };
+
+	protected:
+
+		static NAN_METHOD(New);
+
+		static NAN_METHOD(GetMaxY);
+		static NAN_METHOD(GetMaxX);
+		static NAN_METHOD(GetMinY);
+		static NAN_METHOD(GetMinX);
+
+		NODE_GEOS_V8_FUNCTION(Intersects);
+
+	private:
+
+		static Nan::Persistent<Function> constructor;
+		static NAN_METHOD(ToString);
 
 };
 #endif

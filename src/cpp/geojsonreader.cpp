@@ -1,433 +1,426 @@
 #include "geojsonreader.hpp"
 
-Persistent<Function> GeoJSONReader::constructor;
+Nan::Persistent<Function> GeoJSONReader::constructor;
 
 GeoJSONReader::GeoJSONReader()
-        :
-        geometryFactory(geos::geom::GeometryFactory::getDefaultInstance()),
-        precisionModel(geometryFactory->getPrecisionModel()),
-        coordinateSequenceFactory(geometryFactory->getCoordinateSequenceFactory())
+		:
+		geometryFactory(geos::geom::GeometryFactory::getDefaultInstance()),
+		precisionModel(geometryFactory->getPrecisionModel()),
+		coordinateSequenceFactory(geometryFactory->getCoordinateSequenceFactory())
 {}
 
 GeoJSONReader::GeoJSONReader(const geos::geom::GeometryFactory *gf)
-        :
-        geometryFactory(gf),
-        precisionModel(gf->getPrecisionModel()),
-        coordinateSequenceFactory(gf->getCoordinateSequenceFactory())
+		:
+		geometryFactory(gf),
+		precisionModel(gf->getPrecisionModel()),
+		coordinateSequenceFactory(gf->getCoordinateSequenceFactory())
 {}
 
 GeoJSONReader::~GeoJSONReader() {}
 
-void GeoJSONReader::Initialize(Handle<Object> target) {
+NAN_MODULE_INIT(GeoJSONReader::Initialize) {
 
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
+	Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(GeoJSONReader::New);
+	tpl->InstanceTemplate()->SetInternalFieldCount(1);
+	tpl->SetClassName(Nan::New("GeoJSONReader").ToLocalChecked());
 
-    Local<FunctionTemplate> tpl = FunctionTemplate::New(isolate, GeoJSONReader::New);
+	Nan::SetPrototypeMethod(tpl, "read", GeoJSONReader::Read);
 
-    tpl->InstanceTemplate()->SetInternalFieldCount(1);
-    tpl->SetClassName(String::NewFromUtf8(isolate, "GeoJSONReader"));
+	constructor.Reset(tpl->GetFunction());
 
-    NODE_SET_PROTOTYPE_METHOD(tpl, "read", GeoJSONReader::Read);
-
-    constructor.Reset(isolate, tpl->GetFunction());
-
-    target->Set(String::NewFromUtf8(isolate, "GeoJSONReader"), tpl->GetFunction());
+	target->Set(Nan::New("GeoJSONReader").ToLocalChecked(), tpl->GetFunction());
 
 }
 
-void GeoJSONReader::New(const FunctionCallbackInfo<Value>& args) {
+NAN_METHOD(GeoJSONReader::New) {
 
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
+	GeoJSONReader* reader;
 
-    GeoJSONReader* reader;
+	if(info.Length() == 1) {
 
-    if(args.Length() == 1) {
+		GeometryFactory *factory = Nan::ObjectWrap::Unwrap<GeometryFactory>(info[0]->ToObject());
+		reader = new GeoJSONReader(factory->_factory.get());
 
-        GeometryFactory *factory = ObjectWrap::Unwrap<GeometryFactory>(args[0]->ToObject());
-        reader = new GeoJSONReader(factory->_factory.get());
+	} else {
+		reader = new GeoJSONReader();
+	}
 
-    } else {
-        reader = new GeoJSONReader();
-    }
-
-    reader->Wrap(args.This());
-    args.GetReturnValue().Set(args.This());
+	reader->Wrap(info.This());
+	info.GetReturnValue().Set(info.This());
 
 }
 
-void GeoJSONReader::Read(const FunctionCallbackInfo<Value>& args) {
+NAN_METHOD(GeoJSONReader::Read) {
 
-    Isolate* isolate = Isolate::GetCurrent();
+	Isolate* isolate = Isolate::GetCurrent();
 
-    GeoJSONReader* reader = ObjectWrap::Unwrap<GeoJSONReader>(args.This());
-    
-    try {
+	GeoJSONReader* reader = Nan::ObjectWrap::Unwrap<GeoJSONReader>(info.Holder());
 
-        geos::geom::Geometry* g = reader->read(args[0]);
-        args.GetReturnValue().Set(Geometry::New(g));
+	try {
 
-    } catch (const char* e) {
-        isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, e)));
-    } catch (geos::util::GEOSException e) {
-        isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, e.what())));
-    }
+		geos::geom::Geometry* g = reader->read(info[0]);
+		info.GetReturnValue().Set(Geometry::New(g));
+
+	} catch (const char* e) {
+		Nan::ThrowError(Nan::New(e).ToLocalChecked());
+	} catch (geos::util::GEOSException e) {
+		Nan::ThrowError(Nan::New(e.what()).ToLocalChecked());
+	}
 
 }
 
 geos::geom::Coordinate GeoJSONReader::getCoordinate(Handle<Value> coords) {
 
-    return getCoordinate(coords, 1);
+	return getCoordinate(coords, 1);
 
 }
 
 double GeoJSONReader::valueToDouble(Handle<Value> value) {
 
-    double number = value->NumberValue();
-    if (number != number)
-        throw "A coordinate value must be numeric";
+	double number = value->NumberValue();
+	if (number != number)
+		throw "A coordinate value must be numeric";
 
-    return number;
+	return number;
 
 }
 
 geos::geom::Coordinate GeoJSONReader::getCoordinate(Handle<Value> value, bool acceptArrayOnly) {
 
-    bool isArray = value->IsArray();
+	bool isArray = value->IsArray();
 
-    if (acceptArrayOnly) {
+	if (acceptArrayOnly) {
 
-        if (!isArray)
-            throw "A coordinate must be an instance of Array";
+		if (!isArray)
+			throw "A coordinate must be an instance of Array";
 
-    } else {
+	} else {
 
-        if (!isArray && !value->IsNull() && !value->IsUndefined())
-            throw "A coordinate must be an instance of Array or null";
+		if (!isArray && !value->IsNull() && !value->IsUndefined())
+			throw "A coordinate must be an instance of Array or null";
 
-        if (!isArray)
-            return geos::geom::Coordinate::getNull();
+		if (!isArray)
+			return geos::geom::Coordinate::getNull();
 
-    }
+	}
 
-    Handle<Array> array = Handle<Array>::Cast(value);
+	Handle<Array> array = Handle<Array>::Cast(value);
 
-    uint32_t length = array->Length();
-    if (length < 2)
-        throw "A coordinate's length must be >= 2";
+	uint32_t length = array->Length();
+	if (length < 2)
+		throw "A coordinate's length must be >= 2";
 
-    geos::geom::Coordinate coord;
+	geos::geom::Coordinate coord;
 
-    coord.x = valueToDouble(array->Get(0));
-    coord.y = valueToDouble(array->Get(1));
+	coord.x = valueToDouble(array->Get(0));
+	coord.y = valueToDouble(array->Get(1));
 
-    if (length > 2) {
-        coord.z = valueToDouble(array->Get(2));
-    }
+	if (length > 2) {
+		coord.z = valueToDouble(array->Get(2));
+	}
 
-    precisionModel->makePrecise(&coord);
+	precisionModel->makePrecise(&coord);
 
-    return coord;
+	return coord;
 
 }
 
 geos::geom::CoordinateSequence* GeoJSONReader::getCoordinates(Handle<Value> value) {
 
-    if (!value->IsArray())
-        throw "A coordinate sequence must be an instance of Array";
+	if (!value->IsArray())
+		throw "A coordinate sequence must be an instance of Array";
 
-    Handle<Array> array = Handle<Array>::Cast(value);
+	Handle<Array> array = Handle<Array>::Cast(value);
 
-    uint32_t length = array->Length();
-    geos::geom::CoordinateSequence* sequence = coordinateSequenceFactory->create(length, 3);
+	uint32_t length = array->Length();
+	geos::geom::CoordinateSequence* sequence = coordinateSequenceFactory->create(length, 3);
 
-    try {
+	try {
 
-        for (uint32_t i = 0; i < length; i++) {
+		for (uint32_t i = 0; i < length; i++) {
 
-            sequence->setAt(getCoordinate(array->Get(i)), (std::size_t)i);
-        }
+			sequence->setAt(getCoordinate(array->Get(i)), (std::size_t)i);
+		}
 
-    } catch (...) {
+	} catch (...) {
 
-        delete sequence;
-        throw;
+		delete sequence;
+		throw;
 
-    }
+	}
 
-    return sequence;
+	return sequence;
 
 }
 
 geos::geom::LinearRing* GeoJSONReader::getLinearRing(Handle<Value> value) {
 
-    geos::geom::CoordinateSequence* coordinates = getCoordinates(value);
-    return geometryFactory->createLinearRing(coordinates);
+	geos::geom::CoordinateSequence* coordinates = getCoordinates(value);
+	return geometryFactory->createLinearRing(coordinates);
 
 }
 
 Handle<Value> GeoJSONReader::getCoordsArray(Handle<Object> geojson) {
 
-    Isolate* isolate = Isolate::GetCurrent();
+	Isolate* isolate = Isolate::GetCurrent();
 
-    Handle<String> coordsKey = String::NewFromUtf8(isolate, "coordinates");
+	Handle<String> coordsKey = String::NewFromUtf8(isolate, "coordinates");
 
-    Maybe<bool> maybeHasOwnProperty = Nan::HasOwnProperty(geojson, coordsKey);
-    if(!maybeHasOwnProperty.FromMaybe(false))
-        throw "Property \"coordinates\" is missing";
+	Maybe<bool> maybeHasOwnProperty = Nan::HasOwnProperty(geojson, coordsKey);
+	if(!maybeHasOwnProperty.FromMaybe(false))
+		throw "Property \"coordinates\" is missing";
 
-    Handle<Value> coords = geojson->Get(coordsKey);
-    if (!coords->IsArray() && !coords->IsNull() && !coords->IsUndefined())
-        throw "Property \"coordinates\" must be an instance of Array or null";
+	Handle<Value> coords = geojson->Get(coordsKey);
+	if (!coords->IsArray() && !coords->IsNull() && !coords->IsUndefined())
+		throw "Property \"coordinates\" must be an instance of Array or null";
 
-    return coords;
+	return coords;
 
 }
 
 Handle<Array> GeoJSONReader::getGeomsArray(Handle<Object> geojson) {
 
-    Isolate* isolate = Isolate::GetCurrent();
+	Isolate* isolate = Isolate::GetCurrent();
 
-    Handle<String> geomsKey = String::NewFromUtf8(isolate, "geometries");
+	Handle<String> geomsKey = String::NewFromUtf8(isolate, "geometries");
 
-    Maybe<bool> maybeHasOwnProperty = Nan::HasOwnProperty(geojson, geomsKey);
-    if(!maybeHasOwnProperty.FromMaybe(false))
-        throw "Property \"geometries\" is missing";
+	Maybe<bool> maybeHasOwnProperty = Nan::HasOwnProperty(geojson, geomsKey);
+	if(!maybeHasOwnProperty.FromMaybe(false))
+		throw "Property \"geometries\" is missing";
 
-    Handle<Value> geoms = geojson->Get(geomsKey);
-    if (!geoms->IsArray())
-        throw "Property \"geometries\" must be an instance of Array";
+	Handle<Value> geoms = geojson->Get(geomsKey);
+	if (!geoms->IsArray())
+		throw "Property \"geometries\" must be an instance of Array";
 
-    return Handle<Array>::Cast(geoms);
+	return Handle<Array>::Cast(geoms);
 
 }
 
 geos::geom::Geometry* GeoJSONReader::read(Handle<Value> value) {
 
-    if (!value->IsObject()) {
-        throw "GeoJSON must be an instance of Object";
-    }
+	if (!value->IsObject()) {
+		throw "GeoJSON must be an instance of Object";
+	}
 
-    Isolate* isolate = Isolate::GetCurrent();
-    HandleScope scope(isolate);
+	Isolate* isolate = Isolate::GetCurrent();
+	HandleScope scope(isolate);
 
-    Handle<Object> obj = Handle<Object>::Cast(value);
+	Handle<Object> obj = Handle<Object>::Cast(value);
 
-    Handle<String> typeKey = String::NewFromUtf8(isolate, "type");
+	Handle<String> typeKey = String::NewFromUtf8(isolate, "type");
 
-    Maybe<bool> maybeHasOwnProperty = Nan::HasOwnProperty(obj, typeKey);
-    if(!maybeHasOwnProperty.FromMaybe(false))
-        throw "Property \"type\" is missing";
+	Maybe<bool> maybeHasOwnProperty = Nan::HasOwnProperty(obj, typeKey);
+	if(!maybeHasOwnProperty.FromMaybe(false))
+		throw "Property \"type\" is missing";
 
-    std::string string = *String::Utf8Value(obj->Get(typeKey)->ToString());
+	std::string string = *String::Utf8Value(obj->Get(typeKey)->ToString());
 
-    geos::geom::Geometry* g;
+	geos::geom::Geometry* g;
 
-    try {
+	try {
 
-        if (string == "Point") {
-            g = getPoint(getCoordsArray(obj));
-        } else if (string == "LineString") {
-            g = getLineString(getCoordsArray(obj));
-        } else if (string == "Polygon") {
-            g = getPolygon(getCoordsArray(obj));
-        } else if (string == "MultiPoint") {
-            g = getMultiPoint(getCoordsArray(obj));
-        } else if (string == "MultiLineString") {
-            g = getMultiLineString(getCoordsArray(obj));
-        } else if (string == "MultiPolygon") {
-            g = getMultiPolygon(getCoordsArray(obj));
-        } else if (string == "GeometryCollection") {
-            g = getGeometryCollection(getGeomsArray(obj));
-        } else {
-            throw "Property \"type\" has a value that is not supported or allowed";
-        }
+		if (string == "Point") {
+			g = getPoint(getCoordsArray(obj));
+		} else if (string == "LineString") {
+			g = getLineString(getCoordsArray(obj));
+		} else if (string == "Polygon") {
+			g = getPolygon(getCoordsArray(obj));
+		} else if (string == "MultiPoint") {
+			g = getMultiPoint(getCoordsArray(obj));
+		} else if (string == "MultiLineString") {
+			g = getMultiLineString(getCoordsArray(obj));
+		} else if (string == "MultiPolygon") {
+			g = getMultiPolygon(getCoordsArray(obj));
+		} else if (string == "GeometryCollection") {
+			g = getGeometryCollection(getGeomsArray(obj));
+		} else {
+			throw "Property \"type\" has a value that is not supported or allowed";
+		}
 
-    } catch (...) {
-        throw;
-    }
+	} catch (...) {
+		throw;
+	}
 
-    return g;
+	return g;
 
 }
 
 geos::geom::Point* GeoJSONReader::getPoint(Handle<Value> coords) {
 
-    geos::geom::Coordinate coord = getCoordinate(coords, 0);
+	geos::geom::Coordinate coord = getCoordinate(coords, 0);
 
-    return geometryFactory->createPoint(coord);
+	return geometryFactory->createPoint(coord);
 
 }
 
 geos::geom::LineString* GeoJSONReader::getLineString(Handle<Value> coords) {
 
-    if (coords->IsArray()) {
+	if (coords->IsArray()) {
 
-        return geometryFactory->createLineString(getCoordinates(coords));
-    }
+		return geometryFactory->createLineString(getCoordinates(coords));
+	}
 
-    return geometryFactory->createLineString();
+	return geometryFactory->createLineString();
 
 }
 
 geos::geom::Polygon* GeoJSONReader::getPolygon(Handle<Value> coords) {
 
-    if (coords->IsArray()) {
+	if (coords->IsArray()) {
 
-        Handle<Array> array = Handle<Array>::Cast(coords);
-        if (array->Length() == 0)
-            throw "The number of the linear rings must be >= 1";
+		Handle<Array> array = Handle<Array>::Cast(coords);
+		if (array->Length() == 0)
+			throw "The number of the linear rings must be >= 1";
 
-        geos::geom::LinearRing* shell = getLinearRing(array->Get(0));
+		geos::geom::LinearRing* shell = getLinearRing(array->Get(0));
 
-        uint32_t length = array->Length();
-        std::vector<geos::geom::Geometry*>* holes = new std::vector<geos::geom::Geometry*>();
-        
-        try {
+		uint32_t length = array->Length();
+		std::vector<geos::geom::Geometry*>* holes = new std::vector<geos::geom::Geometry*>();
 
-            for (uint32_t i = 1; i < length; i++) {
+		try {
 
-                geos::geom::LinearRing* g = getLinearRing(array->Get(i));
-                holes->push_back(g);
+			for (uint32_t i = 1; i < length; i++) {
 
-            }
+				geos::geom::LinearRing* g = getLinearRing(array->Get(i));
+				holes->push_back(g);
 
-        } catch (...) {
+			}
 
-            delete shell;
+		} catch (...) {
 
-            unsigned size = holes->size();
-            for (unsigned int i = 0; i < size; i++)
-                delete (*holes)[i];
-            
-            delete holes;
+			delete shell;
 
-            throw;
+			unsigned size = holes->size();
+			for (unsigned int i = 0; i < size; i++)
+				delete (*holes)[i];
 
-        }
+			delete holes;
 
-        return geometryFactory->createPolygon(shell, holes);
+			throw;
 
-    }
+		}
 
-    return geometryFactory->createPolygon();
+		return geometryFactory->createPolygon(shell, holes);
+
+	}
+
+	return geometryFactory->createPolygon();
 
 }
 
 geos::geom::MultiPoint* GeoJSONReader::getMultiPoint(Handle<Value> coords) {
 
-    if (coords->IsArray()) {
-        return geometryFactory->createMultiPoint(*getCoordinates(coords));
-    }
+	if (coords->IsArray()) {
+		return geometryFactory->createMultiPoint(*getCoordinates(coords));
+	}
 
-    return geometryFactory->createMultiPoint();
+	return geometryFactory->createMultiPoint();
 
 }
 
 geos::geom::MultiLineString* GeoJSONReader::getMultiLineString(Handle<Value> coords) {
 
-    if (coords->IsArray()) {
+	if (coords->IsArray()) {
 
-        Handle<Array> array = Handle<Array>::Cast(coords);
-        uint32_t length = array->Length();
+		Handle<Array> array = Handle<Array>::Cast(coords);
+		uint32_t length = array->Length();
 
-        std::vector<geos::geom::Geometry*>* geoms = new std::vector<geos::geom::Geometry*>();
-        
-        try {
+		std::vector<geos::geom::Geometry*>* geoms = new std::vector<geos::geom::Geometry*>();
 
-            for (uint32_t i = 0; i < length; i++) {
+		try {
 
-                geos::geom::LineString* g = getLineString(array->Get(i));
-                geoms->push_back(g);
+			for (uint32_t i = 0; i < length; i++) {
 
-            }
+				geos::geom::LineString* g = getLineString(array->Get(i));
+				geoms->push_back(g);
 
-        } catch (...) {
+			}
 
-            unsigned size = geoms->size();
-            for (unsigned int i = 0; i < size; i++)
-                delete (*geoms)[i];
-            
-            delete geoms;
-            
-            throw;
-        
-        }
+		} catch (...) {
 
-        return geometryFactory->createMultiLineString(geoms);
+			unsigned size = geoms->size();
+			for (unsigned int i = 0; i < size; i++)
+				delete (*geoms)[i];
 
-    }
+			delete geoms;
 
-    return geometryFactory->createMultiLineString();
+			throw;
+
+		}
+
+		return geometryFactory->createMultiLineString(geoms);
+
+	}
+
+	return geometryFactory->createMultiLineString();
 
 }
 
 geos::geom::MultiPolygon* GeoJSONReader::getMultiPolygon(Handle<Value> coords) {
 
-    if (coords->IsArray()) {
+	if (coords->IsArray()) {
 
-        Handle<Array> array = Handle<Array>::Cast(coords);
-        uint32_t length = array->Length();
+		Handle<Array> array = Handle<Array>::Cast(coords);
+		uint32_t length = array->Length();
 
-        std::vector<geos::geom::Geometry*>* geoms = new std::vector<geos::geom::Geometry*>();
+		std::vector<geos::geom::Geometry*>* geoms = new std::vector<geos::geom::Geometry*>();
 
-        try {
+		try {
 
-            for (uint32_t i = 0; i < length; i++) {
+			for (uint32_t i = 0; i < length; i++) {
 
-                geos::geom::Polygon* g = getPolygon(array->Get(i));
-                geoms->push_back(g);
+				geos::geom::Polygon* g = getPolygon(array->Get(i));
+				geoms->push_back(g);
 
-            }
+			}
 
-        } catch (...) {
+		} catch (...) {
 
-            unsigned size = geoms->size();
-            for (unsigned int i = 0; i < size; i++)
-                delete (*geoms)[i];
+			unsigned size = geoms->size();
+			for (unsigned int i = 0; i < size; i++)
+				delete (*geoms)[i];
 
-            delete geoms;
+			delete geoms;
 
-            throw;
+			throw;
 
-        }
+		}
 
-        return geometryFactory->createMultiPolygon(geoms);
+		return geometryFactory->createMultiPolygon(geoms);
 
-    }
+	}
 
-    return geometryFactory->createMultiPolygon();
+	return geometryFactory->createMultiPolygon();
 
 }
 
 geos::geom::GeometryCollection* GeoJSONReader::getGeometryCollection(Handle<Array> array) {
 
-    uint32_t length = array->Length();
-    
-    std::vector<geos::geom::Geometry*>* geoms = new std::vector<geos::geom::Geometry*>();
-    
-    try {
+	uint32_t length = array->Length();
 
-        for (uint32_t i = 0; i < length; i++) {
+	std::vector<geos::geom::Geometry*>* geoms = new std::vector<geos::geom::Geometry*>();
 
-            geos::geom::Geometry* g = read(array->Get(i));
-            geoms->push_back(g);
+	try {
 
-        }
+		for (uint32_t i = 0; i < length; i++) {
 
-    } catch (...) {
+			geos::geom::Geometry* g = read(array->Get(i));
+			geoms->push_back(g);
 
-        unsigned size = geoms->size();
-        for (unsigned int i = 0; i < size; i++)
-            delete (*geoms)[i];
-        
-        delete geoms;
-        
-        throw;
-    
-    }
+		}
 
-    return geometryFactory->createGeometryCollection(geoms);
+	} catch (...) {
+
+		unsigned size = geoms->size();
+		for (unsigned int i = 0; i < size; i++)
+			delete (*geoms)[i];
+
+		delete geoms;
+
+		throw;
+
+	}
+
+	return geometryFactory->createGeometryCollection(geoms);
 
 }
