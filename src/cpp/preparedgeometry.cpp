@@ -63,7 +63,11 @@ Handle<Value> PreparedGeometry::New(const geos::geom::prep::PreparedGeometry* pr
 	Local<v8::Object> instance;
 
 	if (maybeInstance.IsEmpty()) {
+
 		Nan::ThrowError("Could not create new PreparedGeometry instance");
+
+		return Undefined(isolate);
+
 	} else {
 
 		instance = maybeInstance.ToLocalChecked();
@@ -86,13 +90,13 @@ NAN_METHOD(PreparedGeometry::GetGeometry) {
 }
 
 // GEOS binary predicates
-NODE_GEOS_BINARY_PREDICATE(PreparedGeometry, Geometry, Contains, contains);
-NODE_GEOS_BINARY_PREDICATE(PreparedGeometry, Geometry, ContainsProperly, containsProperly);
-NODE_GEOS_BINARY_PREDICATE(PreparedGeometry, Geometry, CoveredBy, coveredBy);
-NODE_GEOS_BINARY_PREDICATE(PreparedGeometry, Geometry, Covers, covers);
-NODE_GEOS_BINARY_PREDICATE(PreparedGeometry, Geometry, Crosses, crosses);
-NODE_GEOS_BINARY_PREDICATE(PreparedGeometry, Geometry, Disjoint, disjoint);
-NODE_GEOS_BINARY_PREDICATE(PreparedGeometry, Geometry, Intersects, intersects);
-NODE_GEOS_BINARY_PREDICATE(PreparedGeometry, Geometry, Overlaps, overlaps);
-NODE_GEOS_BINARY_PREDICATE(PreparedGeometry, Geometry, Touches, touches);
-NODE_GEOS_BINARY_PREDICATE(PreparedGeometry, Geometry, Within, within);
+NODE_GEOS_BINARY_PREDICATE(geos::geom::prep, PreparedGeometry, geos::geom, Geometry, Contains, contains);
+NODE_GEOS_BINARY_PREDICATE(geos::geom::prep, PreparedGeometry, geos::geom, Geometry, ContainsProperly, containsProperly);
+NODE_GEOS_BINARY_PREDICATE(geos::geom::prep, PreparedGeometry, geos::geom, Geometry, CoveredBy, coveredBy);
+NODE_GEOS_BINARY_PREDICATE(geos::geom::prep, PreparedGeometry, geos::geom, Geometry, Covers, covers);
+NODE_GEOS_BINARY_PREDICATE(geos::geom::prep, PreparedGeometry, geos::geom, Geometry, Crosses, crosses);
+NODE_GEOS_BINARY_PREDICATE(geos::geom::prep, PreparedGeometry, geos::geom, Geometry, Disjoint, disjoint);
+NODE_GEOS_BINARY_PREDICATE(geos::geom::prep, PreparedGeometry, geos::geom, Geometry, Intersects, intersects);
+NODE_GEOS_BINARY_PREDICATE(geos::geom::prep, PreparedGeometry, geos::geom, Geometry, Overlaps, overlaps);
+NODE_GEOS_BINARY_PREDICATE(geos::geom::prep, PreparedGeometry, geos::geom, Geometry, Touches, touches);
+NODE_GEOS_BINARY_PREDICATE(geos::geom::prep, PreparedGeometry, geos::geom, Geometry, Within, within);

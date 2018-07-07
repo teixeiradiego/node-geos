@@ -31,25 +31,48 @@ tests = (vows.describe "Geometry").addBatch
       assert.isFunction geom.isSimple
       assert.isTrue geom.isSimple()
     "should have a async isSimple function": (geom) ->
-      geom.isSimple (error, isSimple) ->
-        assert.isTrue isSimple
+      assert.isFunction geom.isSimpleAsync
+    "when async isSimple function called":
+      topic: (geom) ->
+        promise = geom.isSimpleAsync().then @callback
+        undefined
+      "should return TRUE": (result) ->
+        assert.isTrue result
+
     "should have a isValid function": (geom) ->
       assert.isFunction geom.isValid
     "should have a async isValid function": (geom) ->
-      geom.isValid (error, isValid) ->
-        assert.isTrue isValid
+      assert.isFunction geom.isValidAsync
+    "when async isValid function called":
+      topic: (geom) ->
+        promise = geom.isValidAsync().then @callback
+        undefined
+      "should return TRUE": (result) ->
+        assert.isTrue result
+
     "should have a isEmpty function": (geom) ->
       assert.isFunction geom.isEmpty
       assert.isFalse geom.isEmpty()
     "should have a async isEmpty function": (geom) ->
-      geom.isEmpty (error, isEmpty) ->
-        assert.isFalse isEmpty
+      assert.isFunction geom.isEmptyAsync
+    "when async isEmpty function called":
+      topic: (geom) ->
+        promise = geom.isEmptyAsync().then @callback
+        undefined
+      "should return FALSE": (result) ->
+        assert.isFalse result
+
     "should have a isRectangle function": (geom) ->
       assert.isFunction geom.isRectangle
       assert.isFalse geom.isRectangle()
     "should have a async isRectangle function": (geom) ->
-      geom.isRectangle (error, isRectangle) ->
-        assert.isFalse isRectangle
+      assert.isFunction geom.isRectangleAsync
+    "when async isRectangle function called":
+      topic: (geom) ->
+        promise = geom.isRectangleAsync().then @callback
+        undefined
+      "should return FALSE": (result) ->
+        assert.isFalse result
 
     # geos binary predicates
     "should have a disjoint function": (geom) ->
@@ -57,80 +80,130 @@ tests = (vows.describe "Geometry").addBatch
       assert.isFalse geom.disjoint geom
 
     "shoudl have an async disjoint function": (geom) ->
-      geom.disjoint geom, (error, disjoint) ->
-        assert.isFalse disjoint
+      assert.isFunction geom.disjointAsync
+    "when async disjoint function called":
+      topic: (geom) ->
+        promise = geom.disjointAsync(geom).then @callback
+        undefined
+      "should return FALSE": (result) ->
+        assert.isFalse result
 
     "should have a touches function": (geom) ->
       assert.isFunction geom.touches
       assert.ok not geom.touches geom
 
     "should have an async touches function": (geom) ->
-      geom.touches geom, (error, touches) ->
-        assert.isFalse touches
+      assert.isFunction geom.touchesAsync
+    "when async touches function called":
+      topic: (geom) ->
+        promise = geom.touchesAsync(geom).then @callback
+        undefined
+      "should return FALSE": (result) ->
+        assert.isFalse result
 
     "should have a intersects function": (geom) ->
       assert.isFunction geom.intersects
       assert.isTrue geom.intersects geom
 
     "should have an async intersects function": (geom) ->
-      geom.intersects geom, (error, intersects) ->
-        assert.isTrue intersects
+      assert.isFunction geom.intersectsAsync
+    "when async intersects function called":
+      topic: (geom) ->
+        promise = geom.intersectsAsync(geom).then @callback
+        undefined
+      "should return TRUE": (result) ->
+        assert.isTrue result
 
     "should have a crosses function": (geom) ->
       assert.isFunction geom.crosses
       assert.isFalse geom.crosses geom
 
     "should have an async crosses function": (geom) ->
-      geom.crosses geom, (error, crosses) ->
-        assert.isFalse crosses
+      assert.isFunction geom.crossesAsync
+    "when async crosses function called":
+      topic: (geom) ->
+        promise = geom.crossesAsync(geom).then @callback
+        undefined
+      "should return FALSE": (result) ->
+        assert.isFalse result
 
     "should have a within function": (geom) ->
       assert.isFunction geom.within
       assert.isTrue geom.within geom
 
     "should have an async within function": (geom) ->
-      geom.within geom, (error, within) ->
-        assert.isTrue within
+      assert.isFunction geom.withinAsync
+    "when async within function called":
+      topic: (geom) ->
+        promise = geom.withinAsync(geom).then @callback
+        undefined
+      "should return TRUE": (result) ->
+        assert.isTrue result
 
     "should have a contains function": (geom) ->
       assert.isFunction geom.contains
       assert.isTrue geom.contains geom
 
     "should have an async contains function": (geom) ->
-      geom.contains geom, (error, contains) ->
-        assert.isTrue contains
+      assert.isFunction geom.containsAsync
+    "when async contains function called":
+      topic: (geom) ->
+        promise = geom.containsAsync(geom).then @callback
+        undefined
+      "should return TRUE": (result) ->
+        assert.isTrue result
 
     "should have a overlaps function": (geom) ->
       assert.isFunction geom.overlaps
       assert.isFalse geom.overlaps geom
 
     "should have a async overlaps function": (geom) ->
-      geom.overlaps geom, (error, overlaps) ->
-        assert.isFalse overlaps
+      assert.isFunction geom.overlapsAsync
+    "when async overlaps function called":
+      topic: (geom) ->
+        promise = geom.overlapsAsync(geom).then @callback
+        undefined
+      "should return FALSE": (result) ->
+        assert.isFalse result
 
     "should have a equals function": (geom) ->
       assert.isFunction geom.equals
       assert.isTrue geom.equals geom
 
     "should have an async equals function": (geom) ->
-      geom.equals geom, (error, equals) ->
-        assert.isTrue equals
+      assert.isFunction geom.equalsAsync
+    "when async equals function called":
+      topic: (geom) ->
+        promise = geom.equalsAsync(geom).then @callback
+        undefined
+      "should return TRUE": (result) ->
+        assert.isTrue result
 
     "should have a covers function": (geom) ->
       assert.isFunction geom.covers
       assert.isTrue geom.covers geom
 
     "should have an async covers function": (geom) ->
-      geom.covers geom, (error, covers) ->
-        assert.isTrue covers
+      assert.isFunction geom.coversAsync
+    "when async covers function called":
+      topic: (geom) ->
+        promise = geom.coversAsync(geom).then @callback
+        undefined
+      "should return TRUE": (result) ->
+        assert.isTrue result
 
     "should have a coveredBy function": (geom) ->
       assert.isFunction geom.coveredBy
       assert.isTrue geom.coveredBy geom
 
     "should have an async coveredBy function": (geom) ->
-      geom.coveredBy geom, (error, coveredBy) ->
-        assert.isTrue coveredBy
+      assert.isFunction geom.coveredByAsync
+    "when async coveredBy function called":
+      topic: (geom) ->
+        promise = geom.coveredByAsync(geom).then @callback
+        undefined
+      "should return TRUE": (result) ->
+        assert.isTrue result
 
     #topologic functions
     "should have a intersection function": (geom) ->

@@ -19,21 +19,35 @@ NAN_MODULE_INIT(Geometry::Initialize) {
 	Nan::SetPrototypeMethod(tpl, "toString", Geometry::ToString);
 	//GEOS unary predicates
 	Nan::SetPrototypeMethod(tpl, "isSimple", Geometry::IsSimple);
+	Nan::SetPrototypeMethod(tpl, "isSimpleAsync", Geometry::IsSimpleAsync);
 	Nan::SetPrototypeMethod(tpl, "isValid", Geometry::IsValid);
+	Nan::SetPrototypeMethod(tpl, "isValidAsync", Geometry::IsValidAsync);
 	Nan::SetPrototypeMethod(tpl, "isEmpty", Geometry::IsEmpty);
+	Nan::SetPrototypeMethod(tpl, "isEmptyAsync", Geometry::IsEmptyAsync);
 	Nan::SetPrototypeMethod(tpl, "isRectangle", Geometry::IsRectangle);
+	Nan::SetPrototypeMethod(tpl, "isRectangleAsync", Geometry::IsRectangleAsync);
 	//GEOS binary predicates
 	//TODO maybe define a macro for this too
 	Nan::SetPrototypeMethod(tpl, "disjoint", Geometry::Disjoint);
+	Nan::SetPrototypeMethod(tpl, "disjointAsync", Geometry::DisjointAsync);
 	Nan::SetPrototypeMethod(tpl, "touches", Geometry::Touches);
+	Nan::SetPrototypeMethod(tpl, "touchesAsync", Geometry::TouchesAsync);
 	Nan::SetPrototypeMethod(tpl, "intersects", Geometry::Intersects);
+	Nan::SetPrototypeMethod(tpl, "intersectsAsync", Geometry::IntersectsAsync);
 	Nan::SetPrototypeMethod(tpl, "crosses", Geometry::Crosses);
+	Nan::SetPrototypeMethod(tpl, "crossesAsync", Geometry::CrossesAsync);
 	Nan::SetPrototypeMethod(tpl, "within", Geometry::Within);
+	Nan::SetPrototypeMethod(tpl, "withinAsync", Geometry::WithinAsync);
 	Nan::SetPrototypeMethod(tpl, "contains", Geometry::Contains);
+	Nan::SetPrototypeMethod(tpl, "containsAsync", Geometry::ContainsAsync);
 	Nan::SetPrototypeMethod(tpl, "overlaps", Geometry::Overlaps);
+	Nan::SetPrototypeMethod(tpl, "overlapsAsync", Geometry::OverlapsAsync);
 	Nan::SetPrototypeMethod(tpl, "equals", Geometry::Equals);
+	Nan::SetPrototypeMethod(tpl, "equalsAsync", Geometry::EqualsAsync);
 	Nan::SetPrototypeMethod(tpl, "covers", Geometry::Covers);
+	Nan::SetPrototypeMethod(tpl, "coversAsync", Geometry::CoversAsync);
 	Nan::SetPrototypeMethod(tpl, "coveredBy", Geometry::CoveredBy);
+	Nan::SetPrototypeMethod(tpl, "coveredByAsync", Geometry::CoveredByAsync);
 
 	Nan::SetPrototypeMethod(tpl, "isWithinDistance", Geometry::IsWithinDistance);
 
@@ -256,16 +270,16 @@ NODE_GEOS_UNARY_PREDICATE(Geometry, IsEmpty, isEmpty);
 NODE_GEOS_UNARY_PREDICATE(Geometry, IsRectangle, isRectangle);
 
 // GEOS binary predicates
-NODE_GEOS_BINARY_PREDICATE(Geometry, Geometry, Disjoint, disjoint);
-NODE_GEOS_BINARY_PREDICATE(Geometry, Geometry, Touches, touches);
-NODE_GEOS_BINARY_PREDICATE(Geometry, Geometry, Intersects, intersects);
-NODE_GEOS_BINARY_PREDICATE(Geometry, Geometry, Crosses, crosses);
-NODE_GEOS_BINARY_PREDICATE(Geometry, Geometry, Within, within);
-NODE_GEOS_BINARY_PREDICATE(Geometry, Geometry, Contains, contains);
-NODE_GEOS_BINARY_PREDICATE(Geometry, Geometry, Overlaps, overlaps);
-NODE_GEOS_BINARY_PREDICATE(Geometry, Geometry, Equals, equals);
-NODE_GEOS_BINARY_PREDICATE(Geometry, Geometry, Covers, covers);
-NODE_GEOS_BINARY_PREDICATE(Geometry, Geometry, CoveredBy, coveredBy);
+NODE_GEOS_BINARY_PREDICATE(geos::geom, Geometry, geos::geom, Geometry, Disjoint, disjoint);
+NODE_GEOS_BINARY_PREDICATE(geos::geom, Geometry, geos::geom, Geometry, Touches, touches);
+NODE_GEOS_BINARY_PREDICATE(geos::geom, Geometry, geos::geom, Geometry, Intersects, intersects);
+NODE_GEOS_BINARY_PREDICATE(geos::geom, Geometry, geos::geom, Geometry, Crosses, crosses);
+NODE_GEOS_BINARY_PREDICATE(geos::geom, Geometry, geos::geom, Geometry, Within, within);
+NODE_GEOS_BINARY_PREDICATE(geos::geom, Geometry, geos::geom, Geometry, Contains, contains);
+NODE_GEOS_BINARY_PREDICATE(geos::geom, Geometry, geos::geom, Geometry, Overlaps, overlaps);
+NODE_GEOS_BINARY_PREDICATE(geos::geom, Geometry, geos::geom, Geometry, Equals, equals);
+NODE_GEOS_BINARY_PREDICATE(geos::geom, Geometry, geos::geom, Geometry, Covers, covers);
+NODE_GEOS_BINARY_PREDICATE(geos::geom, Geometry, geos::geom, Geometry, CoveredBy, coveredBy);
 
 // GEOS unary topologic functions
 NODE_GEOS_UNARY_TOPOLOGIC_FUNCTION(geos::geom, Geometry, GetEnvelope, getEnvelope);

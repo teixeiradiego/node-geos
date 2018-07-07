@@ -40,8 +40,14 @@ tests = (vows.describe "Envelope").addBatch
       assert.isTrue envelope.intersects envelope
 
     "should have an async intersects function": (envelope) ->
-      envelope.intersects envelope, (error, intersects) ->
-        assert.isTrue intersects
+      assert.isFunction envelope.intersectsAsync
+    # "when async intersects function called":
+    #   topic: (envelope) ->
+    #     promise = envelope.intersectsAsync(envelope).then @callback
+    #     undefined
+    #   "should return TRUE": (result) ->
+    #     assert.isTrue result
+
 
   "A direct call to Geometry default constructor":
 

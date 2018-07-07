@@ -30,6 +30,7 @@ NAN_MODULE_INIT(Envelope::Initialize) {
 	Nan::SetPrototypeMethod(tpl, "getMinX", Envelope::GetMinX);
 
 	Nan::SetPrototypeMethod(tpl, "intersects", Envelope::Intersects);
+	Nan::SetPrototypeMethod(tpl, "intersectsAsync", Envelope::IntersectsAsync);
 
 	constructor.Reset(tpl->GetFunction());
 
@@ -38,13 +39,12 @@ NAN_MODULE_INIT(Envelope::Initialize) {
 
 Handle<Value> Envelope::New(const geos::geom::Envelope *envelope) {
 
-	Isolate* isolate = Isolate::GetCurrent();
-	HandleScope scope(isolate);
+	Nan::HandleScope scope();
 
 	Envelope *env = new Envelope(envelope);
-	Handle<Value> ext = External::New(isolate, env);
+	Handle<Value> ext = Nan::New<External>(env);
 
-	Local<Function> cons = Local<Function>::New(isolate, constructor);
+	Local<Function> cons = Nan::New<Function>(constructor);
 	MaybeLocal<v8::Object> maybeInstance = Nan::NewInstance(cons, 1, &ext);
 	Local<v8::Object> instance;
 
@@ -52,7 +52,7 @@ Handle<Value> Envelope::New(const geos::geom::Envelope *envelope) {
 
 		Nan::ThrowError("Could not create new Envelope instance");
 
-		return Undefined(isolate);
+		return Nan::Undefined();
 
 	} else {
 
@@ -90,9 +90,6 @@ NAN_METHOD(Envelope::New) {
 
 NAN_METHOD(Envelope::ToString) {
 
-	Isolate* isolate = Isolate::GetCurrent();
-	HandleScope scope(isolate);
-
 	Envelope* envelope = Nan::ObjectWrap::Unwrap<Envelope>(info.Holder());
 
 	info.GetReturnValue().Set(Nan::New(envelope->_instance->toString().c_str()).ToLocalChecked());
@@ -105,4 +102,4 @@ NODE_GEOS_DOUBLE_GETTER(Envelope, GetMinY, getMinY);
 NODE_GEOS_DOUBLE_GETTER(Envelope, GetMinX, getMinX);
 
 // GEOS binary predicates
-NODE_GEOS_BINARY_PREDICATE(Envelope, Envelope, Intersects, intersects);
+NODE_GEOS_BINARY_PREDICATE(geos::geom, Envelope, geos::geom, Envelope, Intersects, intersects);

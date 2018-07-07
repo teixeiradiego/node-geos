@@ -52,8 +52,6 @@ NAN_METHOD(GeoJSONReader::New) {
 
 NAN_METHOD(GeoJSONReader::Read) {
 
-	Isolate* isolate = Isolate::GetCurrent();
-
 	GeoJSONReader* reader = Nan::ObjectWrap::Unwrap<GeoJSONReader>(info.Holder());
 
 	try {

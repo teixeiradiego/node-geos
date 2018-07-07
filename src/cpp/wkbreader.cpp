@@ -53,7 +53,7 @@ NAN_METHOD(WKBReader::ReadHEX) {
 	try {
 		geos::geom::Geometry* geom = reader->_reader->readHEX(is);
 		info.GetReturnValue().Set(Geometry::New(geom));
-	} catch (geos::io::ParseException e) {
+	} catch (const geos::io::ParseException& e) {
 		Nan::ThrowError(Nan::New(e.what()).ToLocalChecked());
 	} catch (const geos::util::GEOSException& e) {
 		Nan::ThrowError(Nan::New(e.what()).ToLocalChecked());
